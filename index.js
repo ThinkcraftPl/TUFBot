@@ -212,7 +212,7 @@ client.on('message', async message => {
 			const exotic = await Component.findOne({where: {name:'exotic_tech'}});
 			let astime1=0,retime1=0,name1=0,error=false;
 			if(comp1==null){
-				const ore1 = await Ore.findeOne({where: {name:commandArgs[0]}});
+				const ore1 = await Ore.findOne({where: {name:commandArgs[0]}});
 				if(ore1!=null){
 					name1=ore1.name
 					retime1=1/ore1.speed_elite_4xyield
