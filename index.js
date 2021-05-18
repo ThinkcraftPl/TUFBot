@@ -258,6 +258,7 @@ client.on('message', async message => {
 				name1=comp1.name
 				let refinerytime=await refineryTime(comp1)
 				let assemblertime=await assemblerTime(comp1)
+				console.log(assemblertime)
 				astime1=assemblertime
 				retime1=refinerytime
 			}
@@ -274,8 +275,9 @@ client.on('message', async message => {
 				}
 			}else{
 				name2=comp2.name
-				let assemblertime=await assemblerTime(comp1);
+				let assemblertime=await assemblerTime(comp2);
 				let refinerytime=await refineryTime(comp2)
+				console.log(assemblertime)
 				astime2=assemblertime
 				retime2=refinerytime
 			}
