@@ -126,7 +126,7 @@ client.on('message', async message => {
 			}
 		}else if(command === 'orelist'){
 			const ores = await Ore.findAll();
-			var ores="Name | Yield Elite 4xYield | Speed Elite 4xYield\n";
+			var desc="Name | Yield Elite 4xYield | Speed Elite 4xYield\n";
 			(ores).forEach(element => {
 				desc+=element.name+" | "+element.yield_elite_4xyield+" | "+element.speed_elite_4xyield+"\n";
 			});
