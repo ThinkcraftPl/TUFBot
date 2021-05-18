@@ -185,7 +185,7 @@ client.on('message', async message => {
 							break;
 					}
 					amount=amount*compamount
-					refinerytime+=amount/ores.find(r=>r.name==elemnt).speed_elite_4xyield
+					refinerytime+=amount/ores.find(r=>r.name==element).speed_elite_4xyield
 					assemblertime+=amount*comp.assembletime
 					if(amount!=0)
 						embed.addField(element, amount, true);
