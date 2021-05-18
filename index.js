@@ -146,7 +146,7 @@ client.on('message', async message => {
 				let compamount=parseInt(commandArgs[1])
 				if(compamount==null)
 					compamount=1
-				const ores = Ore.findAll();
+				const ores = await Ore.findAll();
 				let compores = ["Iron","Silicon","Nickel","Cobalt","Silver","Gold","Uranium","Platinum","Magnesium"]
 				var refinerytime=0, assemblertime=0;
 				let embed = new Discord.MessageEmbed()
