@@ -79,7 +79,7 @@ client.on('message', async message => {
 					});
 				}
 				catch (e) {
-					message.reply(e)
+					console.log(e)
 				}
 			}else{
 				message.reply("You have not enough permissions to perform this command");
