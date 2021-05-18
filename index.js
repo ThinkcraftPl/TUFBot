@@ -292,12 +292,12 @@ client.on('message', async message => {
 						.setFooter('Default time is measured using elite 4x yield refineries and elite 4x speed assemblers.');
 				if(astime1==0 || astime2==0){
 					message.reply("At least one of compared items is an ingot, so only refining time is compared")
-					embed.addField("Refining time comparason: \n"+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime2/retime1)+" of "+name2)
+					embed.addField("Refining time comparason: \n"+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime1/retime2)+" of "+name2)
 				}else{
 					
-					embed.addField("Assembling time comparason: \n"+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*astime2/astime1)+" of "+name2)
-					embed.addField("Refining time comparason: \n"+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime2/retime1)+" of "+name2)
-					embed.addField("Max of both times time comparason: \n"+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*Math.max(retime2,astime2)/Math.max(retime1,astime1))+" of "+name2)
+					embed.addField("Assembling time comparason: \n"+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*astime1/astime2)+" of "+name2)
+					embed.addField("Refining time comparason: \n"+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime1/retime2)+" of "+name2)
+					embed.addField("Max of both times time comparason: \n"+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*Math.max(retime1,astime1))/Math.max(retime2,astime2)+" of "+name2)
 				}
 				message.channel.send(embed)
 			}
