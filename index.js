@@ -207,9 +207,9 @@ client.on('message', async message => {
 			}
 		}else if(command === 'compare'){
 			const comp1 = await Component.findOne({where: {name:commandArgs[0]}});
-			const common = await Component.findOne({where: {name:common_tech}});
-			const rare = await Component.findOne({where: {name:rare_tech}});
-			const exotic = await Component.findOne({where: {name:exotic_tech}});
+			const common = await Component.findOne({where: {name:'common_tech'}});
+			const rare = await Component.findOne({where: {name:'rare_tech'}});
+			const exotic = await Component.findOne({where: {name:'exotic_tech'}});
 			let astime1=0,retime1=0,name1=0,error=false;
 			if(comp1==null){
 				const ore1 = await Ore.findeOne({where: {name:commandArgs[0]}});
@@ -292,12 +292,12 @@ client.on('message', async message => {
 						.setFooter('Default time is measured using elite 4x yield refineries and elite 4x speed assemblers.');
 				if(astime1==0 || astime2==0){
 					message.reply("At least one of compared items is an ingot, so only refining time is compared")
-					embed.addField("Refining time comparason: \n"+comparednumber+" of "+name1+" is worth the same as "+comparednumber*retime2/retime1+" of "+name2)
+					embed.addField("Refining time comparason: \n"+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime2/retime1)+" of "+name2)
 				}else{
 					
-					embed.addField("Assembling time comparason: \n"+comparednumber+" of "+name1+" is worth the same as "+comparednumber*astime2/astime1+" of "+name2)
-					embed.addField("Refining time comparason: \n"+comparednumber+" of "+name1+" is worth the same as "+comparednumber*retime2/retime1+" of "+name2)
-					embed.addField("Max of both times time comparason: \n"+comparednumber+" of "+name1+" is worth the same as "+comparednumber*Math.max(retime2,astime2)/Math.max(retime1,astime1)+" of "+name2)
+					embed.addField("Assembling time comparason: \n"+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*astime2/astime1)+" of "+name2)
+					embed.addField("Refining time comparason: \n"+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime2/retime1)+" of "+name2)
+					embed.addField("Max of both times time comparason: \n"+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*Math.max(retime2,astime2)/Math.max(retime1,astime1))+" of "+name2)
 				}
 				message.channel.send(embed)
 			}
