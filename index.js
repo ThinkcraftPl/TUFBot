@@ -75,7 +75,7 @@ client.on('message', async message => {
 					tech4x: parseInt(commandArgs[11]),
 					tech8x: parseInt(commandArgs[12]),
 					assembletime: parseFloat(commandArgs[13]),
-				})
+				}, { fields: ['name','iron','silicon','nickel','cobalt','silver','gold','uranium','platinum','magnesium','tech2x','tech4x','tech8x','assembletime'] });
 				message.reply("Added successfully ",comp.name)
 			}else{
 				message.reply("You have not enough permissions to perform this command");
