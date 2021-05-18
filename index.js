@@ -136,6 +136,71 @@ client.on('message', async message => {
 				.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
 				.setFooter('All data is from tests on the nexus PvE SPACE');
 			message.channel.send(embed);
+		}else if(command === 'compinfo'){
+			const comp = await Component.findOne({where: {name:commandArgs[0]}});
+			if(comp==null)
+			{
+				message.reply("There is no such component! To see list of components run `"+PREFIX+"complist`!")
+			}else
+			{
+				let compamount=parseInt(commandArgs[1])
+				if(compamount==null)
+					compamount=1
+				const ores = Ore.findAll();
+				let compores = ["Iron","Silicon","Nickel","Cobalt","Silver","Gold","Uranium","Platinum","Magnesium"]
+				var refinerytime=0, assemblertime=0;
+				let embed = new Discord.MessageEmbed()
+					.setTitle(comp.name+" info! ("+compamount+")")
+					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+					.setFooter('Default time is measured using elite 4x yield refineries and elite 4x speed assemblers');
+				compores.forEach(element => {
+					var amount;
+					switch(element){
+						case "Iron":
+							amount=comp.iron;
+							break;
+						case "Silicon":
+							amount=comp.silicon;
+							break;
+						case "Nickel":
+							amount=comp.nickel;
+							break;
+						case "Cobalt":
+							amount=comp.cobalt;
+							break;
+						case "Silver":
+							amount=comp.silver;
+							break;
+						case "Gold":
+							amount=comp.gold;
+							break;
+						case "Uranium":
+							amount=comp.uranium;
+							break;
+						case "Platinum":
+							amount=comp.platinum;
+							break;
+						case "Magnesium":
+							amount=comp.magnesium;
+							break;
+					}
+					amount=amount*compamount
+					refinerytime+=amount/ores.find(r=>r.name==elemnt).speed_elite_4xyield
+					assemblertime+=amount*comp.assembletime
+					if(amount!=0)
+						embed.addField(element, amount, true);
+				});
+				refinerytime=round(refinerytime*100)/100
+				assemblertime=round(assemblertime*100)/100
+				embed.setDescription("Refinery time: "+refinerytime+" seconds (excluding tech)\nAssembler time: "+assemblertime+" seconds (excluding tech)");
+				if(comp.tech2x!=0)
+					embed.addField("Common Tech",comp.tech2x*compamount,true);
+				if(comp.tech4x!=0)
+					embed.addField("Rare Tech",comp.tech4x*compamount,true);
+				if(comp.tech8x!=0)
+					embed.addField("Exotic Tech",comp.tech8x*compamount,true);
+				message.channel.send(embed);
+			}
 		}
 		if (command === 'common') {
 			let number=parseInt(commandArgs[0])
