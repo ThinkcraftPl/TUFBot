@@ -76,6 +76,7 @@ client.on('message', async message => {
 					tech8x: parseInt(commandArgs[12]),
 					assembletime: parseFloat(commandArgs[13]),
 				})
+				message.reply("Added successfully ",comp.name)
 			}else{
 				message.reply("You have not enough permissions to perform this command");
 			}
