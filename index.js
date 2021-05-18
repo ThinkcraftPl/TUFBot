@@ -88,14 +88,15 @@ client.on('message', async message => {
 		}else if(command === 'complist')
 		{
 			const comps = await Component.findAll();
-			var desc="Component name | Fe | Si | Ni | Co | Ag | Au | Ur | Pl | Mg | 2x | 4x | 8x | assembletime\n";
+			var desc="Name | Fe | Si | Ni | Co | Ag | Au | Ur | Pl | Mg | 2x | 4x | 8x | assembletime\n";
 			(comps).forEach(element => {
 				desc+=element.name+" | "+element.iron+" | "+element.silicon+" | "+element.nickel+" | "+element.cobalt+" | "+element.silver+" | "+element.gold+" | "+element.uranium+" | "+element.platinum+" | "+element.magnesium+" | "+element.tech2x+" | "+element.tech4x+" | "+element.tech8x+" | "+element.assembletime+"\n";
 			});
 			let embed = new Discord.MessageEmbed()
 				.setTitle("I know of this components:")
 				.setDescription(desc)
-				.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP');
+				.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+				.setFooter('Assemble time using elite assembler with 4 speed modules and time measured by timer on phone');
 			message.channel.send(embed);
 		}
 		if (command === 'common') {
