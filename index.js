@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { or } = require('sequelize');
 const Sequelize = require('sequelize');
 const { debuglog } = require('util');
 const credentials = require('./credentials.json');
@@ -65,22 +66,34 @@ const Ore = sequelize.define('Ore', {
 Ore.sync({ alter: true });
 function floatOutput(input){
 	let output=""
-	if (input>1000000)
+	if (input>=1000000)
 		output=Math.round(input/10000)/100+"mil"
-	else if(input>1000)
+	else if(input>=1000)
 		output=Math.round(input/10)/100+"k"
 	else
 		output=Math.round(input/0.01)/100
 	return output;
 }
 function timeOutput(input){
-	if(input>3600)
+	if(input>=3600)
 		output=Math.round(input/36)/100+" hours"
-	else if(input>60)
+	else if(input>=60)
 		output=Math.round(input/0.6)/100+" minutes"
 	else
 		output=Math.round(input/0.01)/100+" seconds"
 	return output;
+}
+function refineryTime(comp){
+	const ores = await Ore.findAll();
+	let refinerytime=0
+	let compores = ["Iron","Silicon","Nickel","Cobalt","Silver","Gold","Uranium","Platinum","Magnesium"]
+	compores.forEach(element => {
+		var amount;
+		amount=parseFloat(comp.dataValues[element.toLowerCase()]);
+		refinerytime+=amount/ores.find(r=>r.name==element).speed_elite_4xyield
+	});
+	refinerytime=Math.round(refinerytime*100)/100
+	return refinerytime;
 }
 client.on('message', async message => {
 	if (message.content.startsWith(PREFIX)) {
@@ -191,6 +204,102 @@ client.on('message', async message => {
 				if(comp.dataValues["tech8x"]!=0)
 					embed.addField("Exotic Tech",floatOutput(comp.tech8x*compamount),true);
 				message.channel.send(embed);
+			}
+		}else if(command === 'compare'){
+			const comp1 = await Component.findOne({where: {name:commandArgs[0]}});
+			const common = await Component.findOne({where: {name:common_tech}});
+			const rare = await Component.findOne({where: {name:rare_tech}});
+			const exotic = await Component.findOne({where: {name:exotic_tech}});
+			let astime1=0,retime1=0,name1=0,error=false;
+			if(comp1==null){
+				const ore1 = await Ore.findeOne({where: {name:commandArgs[0]}});
+				if(ore1!=null){
+					name1=ore1.name
+					retime1=1/ore1.speed_elite_4xyield
+					astime1=0
+				}else{
+					error=true
+				}
+			}else{
+				name1=comp1.name
+				let assemblertime=0;
+				refinerytime=refineryTime(comp1)
+				if(comp1.dataValues["tech2x"]!=0)
+				{
+					refinerytime+=comp1.tech2x*refineryTime(common)
+					assemblertime+=comp1.tech2x*common.assembletime
+				}
+				if(comp1.dataValues["tech4x"]!=0)
+				{
+					refinerytime+=comp1.tech4x*refineryTime(rare)
+					assemblertime+=comp1.tech4x*rare.assembletime
+				}
+				if(comp1.dataValues["tech8x"]!=0)
+				{
+					refinerytime+=comp1.tech8x*refineryTime(exotic)
+					assemblertime+=comp1.tech8x*exotic.assembletime
+				}
+				assemblertime+=comp1.assembletime
+				assemblertime=Math.round(assemblertime*100)/100
+				astime1=assemblertime
+				retime1=refinerytime
+			}
+			let astime2=0,retime2=0,name2=0;
+			const comp2 = await Component.findOne({where: {name:commandArgs[2]}});
+			if(comp2==null){
+				const ore2 = await Ore.findeOne({where: {name:commandArgs[2]}});
+				if(ore2!=null){
+					name2=ore2.name
+					retime2=1/ore2.speed_elite_4xyield
+					astime2=0
+				}else{
+					error=true
+				}
+			}else{
+				name2=comp2.name
+				let assemblertime=0;
+				refinerytime=refineryTime(comp2)
+				if(comp2.dataValues["tech2x"]!=0)
+				{
+					refinerytime+=comp2.tech2x*refineryTime(common)
+					assemblertime+=comp2.tech2x*common.assembletime
+				}
+				if(comp2.dataValues["tech4x"]!=0)
+				{
+					refinerytime+=comp2.tech4x*refineryTime(rare)
+					assemblertime+=comp2.tech4x*rare.assembletime
+				}
+				if(comp2.dataValues["tech8x"]!=0)
+				{
+					refinerytime+=comp2.tech8x*refineryTime(exotic)
+					assemblertime+=comp2.tech8x*exotic.assembletime
+				}
+				assemblertime+=comp2.assembletime
+				assemblertime=Math.round(assemblertime*100)/100
+				astime2=assemblertime
+				retime2=refinerytime
+			}
+			comparednumber=parseInt(commandArgs[1])
+			if(isNaN(comparednumber))
+				error=true;
+			if(error)
+			{
+				message.reply("At least one of compared items does not exist in the database, or number specified is not a number")
+			}else{
+				let embed = new Discord.MessageEmbed()
+						.setTitle("Comparason between "+name1+" and "+name2)
+						.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+						.setFooter('Default time is measured using elite 4x yield refineries and elite 4x speed assemblers.');
+				if(astime1==0 || astime2==0){
+					message.reply("At least one of compared items is an ingot, so only refining time is compared")
+					embed.addField("Refining time comparason: \n"+comparednumber+" of "+name1+" is worth the same as "+comparednumber*retime2/retime1+" of "+name2)
+				}else{
+					
+					embed.addField("Assembling time comparason: \n"+comparednumber+" of "+name1+" is worth the same as "+comparednumber*astime2/astime1+" of "+name2)
+					embed.addField("Refining time comparason: \n"+comparednumber+" of "+name1+" is worth the same as "+comparednumber*retime2/retime1+" of "+name2)
+					embed.addField("Max of both times time comparason: \n"+comparednumber+" of "+name1+" is worth the same as "+comparednumber*Math.max(retime2,astime2)/Math.max(retime1,astime1)+" of "+name2)
+				}
+				message.channel.send(embed)
 			}
 		}
 		{
