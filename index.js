@@ -97,15 +97,15 @@ async function refineryTime(comp){
 	});
 	if(comp.dataValues["tech2x"]!=0)
 	{
-		refinerytime+=comp.tech2x*await refineryTime(common)
+		refinerytime+=comp.tech2x*(await refineryTime(common))
 	}
 	if(comp2.dataValues["tech4x"]!=0)
 	{
-		refinerytime+=comp.tech4x*await refineryTime(rare)
+		refinerytime+=comp.tech4x*(await refineryTime(rare))
 	}
 	if(comp2.dataValues["tech8x"]!=0)
 	{
-		refinerytime+=comp.tech8x*await refineryTime(exotic)
+		refinerytime+=comp.tech8x*(await refineryTime(exotic))
 	}
 	refinerytime=Math.round(refinerytime*100)/100
 	return refinerytime;
@@ -121,11 +121,11 @@ async function assemblerTime(comp){
 	}
 	if(comp2.dataValues["tech4x"]!=0)
 	{
-		assemblertime+=comp.tech4x*await assemblerTime(rare)
+		assemblertime+=comp.tech4x*(await assemblerTime(rare))
 	}
 	if(comp2.dataValues["tech8x"]!=0)
 	{
-		assemblertime+=comp.tech8x*await assemblerTime(exotic)
+		assemblertime+=comp.tech8x*(await assemblerTime(exotic))
 	}
 	assemblertime+=comp.assembletime
 	assemblertime=Math.round(assemblertime*100)/100
