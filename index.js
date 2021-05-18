@@ -62,7 +62,7 @@ const Ore = sequelize.define('Ore', {
 	yield_elite_4xyield: Sequelize.FLOAT,
 	speed_elite_4xyield: Sequelize.FLOAT,
 });
-Ore.sync();
+Ore.sync({ alter: true });
 client.on('message', async message => {
 	if (message.content.startsWith(PREFIX)) {
 		const input = message.content.slice(PREFIX.length).trim().split(' ');
@@ -124,6 +124,18 @@ client.on('message', async message => {
 			}else{
 				message.reply("You have not enough permissions to perform this command");
 			}
+		}else if(command === 'orelist'){
+			const ores = await Ore.findAll();
+			var ores="Name | Yield Elite 4xYield | Speed Elite 4xYield\n";
+			(ores).forEach(element => {
+				desc+=element.name+" | "+element.yield_elite_4xyield+" | "+element.speed_elite_4xyield+"\n";
+			});
+			let embed = new Discord.MessageEmbed()
+				.setTitle("I know of this ores:")
+				.setDescription(desc)
+				.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+				.setFooter('All data is from tests on the nexus PvE SPACE');
+			message.channel.send(embed);
 		}
 		if (command === 'common') {
 			let number=parseInt(commandArgs[0])
