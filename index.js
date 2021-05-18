@@ -60,23 +60,28 @@ client.on('message', async message => {
 		const commandArgs = input.join(' ').split(' ');
 		if (command === 'addcomp'){
 			if(message.author.id==404361385863282688){
-				const comp = await Component.create({
-					name: commandArgs[0],
-					iron: parseInt(commandArgs[1]),
-					silicon: parseInt(commandArgs[2]),
-					nickel: parseInt(commandArgs[3]),
-					cobalt: parseInt(commandArgs[4]),
-					silver: parseInt(commandArgs[5]),
-					gold: parseInt(commandArgs[6]),
-					uranium: parseInt(commandArgs[7]),
-					platinum: parseInt(commandArgs[8]),
-					magnesium: parseInt(commandArgs[9]),
-					tech2x: parseInt(commandArgs[10]),
-					tech4x: parseInt(commandArgs[11]),
-					tech8x: parseInt(commandArgs[12]),
-					assembletime: parseFloat(commandArgs[13]),
-				}, { fields: ['name','iron','silicon','nickel','cobalt','silver','gold','uranium','platinum','magnesium','tech2x','tech4x','tech8x','assembletime'] });
-				message.reply("Added successfully ",comp.name)
+				try {
+					const comp = await Component.create({
+						name: commandArgs[0],
+						iron: parseInt(commandArgs[1]),
+						silicon: parseInt(commandArgs[2]),
+						nickel: parseInt(commandArgs[3]),
+						cobalt: parseInt(commandArgs[4]),
+						silver: parseInt(commandArgs[5]),
+						gold: parseInt(commandArgs[6]),
+						uranium: parseInt(commandArgs[7]),
+						platinum: parseInt(commandArgs[8]),
+						magnesium: parseInt(commandArgs[9]),
+						tech2x: parseInt(commandArgs[10]),
+						tech4x: parseInt(commandArgs[11]),
+						tech8x: parseInt(commandArgs[12]),
+						assembletime: parseFloat(commandArgs[13]),
+					});
+					message.reply("Added successfully ",comp.name)
+				}catch(e)
+				{
+					message.reply(e)
+				}
 			}else{
 				message.reply("You have not enough permissions to perform this command");
 			}
