@@ -59,7 +59,7 @@ client.on('message', async message => {
 		const command = input.shift();
 		const commandArgs = input.join(' ').split(' ');
 		if (command === 'addcomp'){
-			if(message.author.id===404361385863282688){
+			if(message.author.id==404361385863282688){
 				const comp = await Component.create({
 					name: commandArgs[0],
 					iron: parseInt(commandArgs[1]),
