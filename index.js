@@ -157,31 +157,31 @@ client.on('message', async message => {
 					var amount;
 					switch(element){
 						case "Iron":
-							amount=comp.iron;
+							amount=comp.dataValues.iron;
 							break;
 						case "Silicon":
-							amount=comp.silicon;
+							amount=comp.dataValues.silicon;
 							break;
 						case "Nickel":
-							amount=comp.nickel;
+							amount=comp.dataValues.nickel;
 							break;
 						case "Cobalt":
-							amount=comp.cobalt;
+							amount=comp.dataValues.cobalt;
 							break;
 						case "Silver":
-							amount=comp.silver;
+							amount=comp.dataValues.silver;
 							break;
 						case "Gold":
-							amount=comp.gold;
+							amount=comp.dataValues.gold;
 							break;
 						case "Uranium":
-							amount=comp.uranium;
+							amount=comp.dataValues.uranium;
 							break;
 						case "Platinum":
-							amount=comp.platinum;
+							amount=comp.dataValues.platinum;
 							break;
 						case "Magnesium":
-							amount=comp.magnesium;
+							amount=comp.dataValues.magnesium;
 							break;
 					}
 					amount=amount*compamount
