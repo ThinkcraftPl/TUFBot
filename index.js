@@ -63,6 +63,25 @@ const Ore = sequelize.define('Ore', {
 	speed_elite_4xyield: Sequelize.FLOAT,
 });
 Ore.sync({ alter: true });
+function floatOutput(input){
+	let output=""
+	if (input>1000000)
+		output=Math.round(input/10000)/100+"mil"
+	else if(input>1000)
+		output=Math.round(input/10)/100+"k"
+	else
+		output=Math.round(input/0.01)/100
+	return output;
+}
+function timeOutput(input){
+	if(input>3600)
+		output=Math.round(input/36)/100+" hours"
+	else if(input>60)
+		output=Math.round(input/0.6)/100+" minutes"
+	else
+		output=Math.round(input/0.01)/100+" seconds"
+	return output;
+}
 client.on('message', async message => {
 	if (message.content.startsWith(PREFIX)) {
 		const input = message.content.slice(PREFIX.length).trim().split(' ');
@@ -150,7 +169,7 @@ client.on('message', async message => {
 				let compores = ["Iron","Silicon","Nickel","Cobalt","Silver","Gold","Uranium","Platinum","Magnesium"]
 				var refinerytime=0, assemblertime=0;
 				let embed = new Discord.MessageEmbed()
-					.setTitle(comp.name+" info! ("+compamount+")")
+					.setTitle(comp.name+" info ("+compamount+")")
 					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
 					.setFooter('Default time is measured using elite 4x yield refineries and elite 4x speed assemblers');
 				compores.forEach(element => {
@@ -159,22 +178,23 @@ client.on('message', async message => {
 					amount=amount*compamount
 					refinerytime+=amount/ores.find(r=>r.name==element).speed_elite_4xyield
 					if(amount!=0)
-						embed.addField(element, amount, true);
+						embed.addField(element, floatOutput(amount), true);
 				});
 				assemblertime+=compamount*comp.assembletime
 				refinerytime=Math.round(refinerytime*100)/100
 				assemblertime=Math.round(assemblertime*100)/100
-				embed.setDescription("Refinery time: "+refinerytime+" seconds (excluding tech)\nAssembler time: "+assemblertime+" seconds (excluding tech)");
+				embed.setDescription("Refinery time: "+timeOutput(refinerytime)+" (excluding tech)\nAssembler time: "+timeOutput(assemblertime)+" (excluding tech)");
 				if(comp.dataValues["tech2x"]!=0)
-					embed.addField("Common Tech",comp.tech2x*compamount,true);
+					embed.addField("Common Tech",floatOutput(comp.tech2x*compamount),true);
 				if(comp.dataValues["tech4x"]!=0)
-					embed.addField("Rare Tech",comp.tech4x*compamount,true);
+					embed.addField("Rare Tech",floatOutput(comp.tech4x*compamount),true);
 				if(comp.dataValues["tech8x"]!=0)
-					embed.addField("Exotic Tech",comp.tech8x*compamount,true);
+					embed.addField("Exotic Tech",floatOutput(comp.tech8x*compamount),true);
 				message.channel.send(embed);
 			}
 		}
-		if (command === 'common') {
+		{
+		/*if (command === 'common') {
 			let number=parseInt(commandArgs[0])
 			var desc=""
 			desc+="Iron ingots: "+Math.round(90*number)+"\n"
@@ -249,6 +269,7 @@ client.on('message', async message => {
 					.setDescription(desc);
 				message.channel.send(embed)
 			}
+		}*/
 		}
 	}
 });
