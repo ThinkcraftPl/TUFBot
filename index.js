@@ -169,7 +169,7 @@ client.on('message', async message => {
 				let compores = ["Iron","Silicon","Nickel","Cobalt","Silver","Gold","Uranium","Platinum","Magnesium"]
 				var refinerytime=0, assemblertime=0;
 				let embed = new Discord.MessageEmbed()
-					.setTitle(comp.name+" info ("+compamount+")")
+					.setTitle(comp.name+" info ("+floatOutput(compamount)+")")
 					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
 					.setFooter('Default time is measured using elite 4x yield refineries and elite 4x speed assemblers');
 				compores.forEach(element => {
