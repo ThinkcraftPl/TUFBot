@@ -111,7 +111,7 @@ client.on('message', async message => {
 		}else if(command === 'addore'){
 			if(message.author.id==404361385863282688){
 				try {
-					const ore = await Ores.create({
+					const ore = await Ore.create({
 						name: commandArgs[0],
 						yield_elite_4xyield: parseFloat(commandArgs[1]),
 						speed_elite_4xyield: parseFloat(commandArgs[2])
