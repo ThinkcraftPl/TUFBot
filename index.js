@@ -83,7 +83,7 @@ function timeOutput(input){
 		output=Math.round(input/0.01)/100+" seconds"
 	return output;
 }
-function refineryTime(comp){
+async function refineryTime(comp){
 	const ores = await Ore.findAll();
 	let refinerytime=0
 	let compores = ["Iron","Silicon","Nickel","Cobalt","Silver","Gold","Uranium","Platinum","Magnesium"]
@@ -223,20 +223,20 @@ client.on('message', async message => {
 			}else{
 				name1=comp1.name
 				let assemblertime=0;
-				refinerytime=refineryTime(comp1)
+				refinerytime=await refineryTime(comp1)
 				if(comp1.dataValues["tech2x"]!=0)
 				{
-					refinerytime+=comp1.tech2x*refineryTime(common)
+					refinerytime+=comp1.tech2x*await refineryTime(common)
 					assemblertime+=comp1.tech2x*common.assembletime
 				}
 				if(comp1.dataValues["tech4x"]!=0)
 				{
-					refinerytime+=comp1.tech4x*refineryTime(rare)
+					refinerytime+=comp1.tech4x*await refineryTime(rare)
 					assemblertime+=comp1.tech4x*rare.assembletime
 				}
 				if(comp1.dataValues["tech8x"]!=0)
 				{
-					refinerytime+=comp1.tech8x*refineryTime(exotic)
+					refinerytime+=comp1.tech8x*await refineryTime(exotic)
 					assemblertime+=comp1.tech8x*exotic.assembletime
 				}
 				assemblertime+=comp1.assembletime
@@ -258,20 +258,20 @@ client.on('message', async message => {
 			}else{
 				name2=comp2.name
 				let assemblertime=0;
-				refinerytime=refineryTime(comp2)
+				refinerytime=await refineryTime(comp2)
 				if(comp2.dataValues["tech2x"]!=0)
 				{
-					refinerytime+=comp2.tech2x*refineryTime(common)
+					refinerytime+=comp2.tech2x*await refineryTime(common)
 					assemblertime+=comp2.tech2x*common.assembletime
 				}
 				if(comp2.dataValues["tech4x"]!=0)
 				{
-					refinerytime+=comp2.tech4x*refineryTime(rare)
+					refinerytime+=comp2.tech4x*await refineryTime(rare)
 					assemblertime+=comp2.tech4x*rare.assembletime
 				}
 				if(comp2.dataValues["tech8x"]!=0)
 				{
-					refinerytime+=comp2.tech8x*refineryTime(exotic)
+					refinerytime+=comp2.tech8x*await refineryTime(exotic)
 					assemblertime+=comp2.tech8x*exotic.assembletime
 				}
 				assemblertime+=comp2.assembletime
