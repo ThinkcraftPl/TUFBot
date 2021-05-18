@@ -190,8 +190,8 @@ client.on('message', async message => {
 					if(amount!=0)
 						embed.addField(element, amount, true);
 				});
-				refinerytime=round(refinerytime*100)/100
-				assemblertime=round(assemblertime*100)/100
+				refinerytime=Math.round(refinerytime*100)/100
+				assemblertime=Math.round(assemblertime*100)/100
 				embed.setDescription("Refinery time: "+refinerytime+" seconds (excluding tech)\nAssembler time: "+assemblertime+" seconds (excluding tech)");
 				if(comp.tech2x!=0)
 					embed.addField("Common Tech",comp.tech2x*compamount,true);
