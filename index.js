@@ -289,17 +289,17 @@ client.on('message', async message => {
 				message.reply("At least one of compared items does not exist in the database, or number specified is not a number")
 			}else{
 				let embed = new Discord.MessageEmbed()
-						.setTitle("Comparason between "+name1+" and "+name2)
+						.setTitle("Comparison between "+name1+" and "+name2)
 						.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
 						.setFooter('Default time is measured using elite 4x yield refineries and elite 4x speed assemblers.');
 				if(astime1==0 || astime2==0){
 					message.reply("At least one of compared items is an ingot, so only refining time is compared")
-					embed.addField("Refining time comparason:",""+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime1/retime2)+" of "+name2)
+					embed.addField("Refining time comparison:",""+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime1/retime2)+" of "+name2)
 				}else{
 					
-					embed.addField("Assembling time comparason:",""+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*astime1/astime2)+" of "+name2)
-					embed.addField("Refining time comparason:",""+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime1/retime2)+" of "+name2)
-					embed.addField("Max of both times time comparason:",""+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*Math.max(retime1,astime1)/Math.max(retime2,astime2))+" of "+name2)
+					embed.addField("Assembling time comparison:",""+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*astime1/astime2)+" of "+name2)
+					embed.addField("Refining time comparison:",""+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime1/retime2)+" of "+name2)
+					embed.addField("Max of both times time comparison:",""+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*Math.max(retime1,astime1)/Math.max(retime2,astime2))+" of "+name2)
 				}
 				message.channel.send(embed)
 			}
