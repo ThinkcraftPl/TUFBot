@@ -80,6 +80,7 @@ client.on('message', async message => {
 				}
 				catch (e) {
 					console.log(e)
+					message.reply("there was an error");
 				}
 			}else{
 				message.reply("You have not enough permissions to perform this command");
@@ -87,13 +88,14 @@ client.on('message', async message => {
 		}else if(command === 'complist')
 		{
 			const comps = await Component.findAll();
-			let desc="Component name | iron | silicon | nickel | cobalt | silver | gold | uranium | platinum | magnesium | common | rare | exotic | assembletime\n"
+			var desc="Component name | iron | silicon | nickel | cobalt | silver | gold | uranium | platinum | magnesium | common | rare | exotic | assembletime\n";
 			(comps).forEach(element => {
 				desc+=element.name+" | "+element.iron+" | "+element.silicon+" | "+element.nickel+" | "+element.cobalt+" | "+element.silver+" | "+element.gold+" | "+element.uranium+" | "+element.platinum+" | "+element.magnesium+" | "+element.tech2x+" | "+element.tech4x+" | "+element.tech8x+" | "+element.assembletime+"\n";
 			});
 			let embed = new Discord.MessageEmbed()
 				.setTitle("I know of this components:")
 				.setDescription(desc);
+			message.channel.send(embed);
 		}
 		if (command === 'common') {
 			let number=parseInt(commandArgs[0])
