@@ -144,7 +144,7 @@ client.on('message', async message => {
 			}else
 			{
 				let compamount=parseInt(commandArgs[1])
-				if(compamount==null)
+				if(isNaN(compamount))
 					compamount=1
 				const ores = await Ore.findAll();
 				let compores = ["Iron","Silicon","Nickel","Cobalt","Silver","Gold","Uranium","Platinum","Magnesium"]
@@ -155,49 +155,21 @@ client.on('message', async message => {
 					.setFooter('Default time is measured using elite 4x yield refineries and elite 4x speed assemblers');
 				compores.forEach(element => {
 					var amount;
-					switch(element){
-						case "Iron":
-							amount=comp.dataValues.iron;
-							break;
-						case "Silicon":
-							amount=comp.dataValues.silicon;
-							break;
-						case "Nickel":
-							amount=comp.dataValues.nickel;
-							break;
-						case "Cobalt":
-							amount=comp.dataValues.cobalt;
-							break;
-						case "Silver":
-							amount=comp.dataValues.silver;
-							break;
-						case "Gold":
-							amount=comp.dataValues.gold;
-							break;
-						case "Uranium":
-							amount=comp.dataValues.uranium;
-							break;
-						case "Platinum":
-							amount=comp.dataValues.platinum;
-							break;
-						case "Magnesium":
-							amount=comp.dataValues.magnesium;
-							break;
-					}
+					amount=parseFloat(comp.dataValues[element.toLowerCase()]);
 					amount=amount*compamount
 					refinerytime+=amount/ores.find(r=>r.name==element).speed_elite_4xyield
-					assemblertime+=amount*comp.assembletime
 					if(amount!=0)
 						embed.addField(element, amount, true);
 				});
+				assemblertime+=compamount*comp.assembletime
 				refinerytime=Math.round(refinerytime*100)/100
 				assemblertime=Math.round(assemblertime*100)/100
 				embed.setDescription("Refinery time: "+refinerytime+" seconds (excluding tech)\nAssembler time: "+assemblertime+" seconds (excluding tech)");
-				if(comp.tech2x!=0)
+				if(comp.dataValues["tech2x"]!=0)
 					embed.addField("Common Tech",comp.tech2x*compamount,true);
-				if(comp.tech4x!=0)
+				if(comp.dataValues["tech4x"]!=0)
 					embed.addField("Rare Tech",comp.tech4x*compamount,true);
-				if(comp.tech8x!=0)
+				if(comp.dataValues["tech8x"]!=0)
 					embed.addField("Exotic Tech",comp.tech8x*compamount,true);
 				message.channel.send(embed);
 			}
