@@ -87,13 +87,48 @@ async function refineryTime(comp){
 	const ores = await Ore.findAll();
 	let refinerytime=0
 	let compores = ["Iron","Silicon","Nickel","Cobalt","Silver","Gold","Uranium","Platinum","Magnesium"]
+	const common = await Component.findOne({where: {name:'common_tech'}});
+	const rare = await Component.findOne({where: {name:'rare_tech'}});
+	const exotic = await Component.findOne({where: {name:'exotic_tech'}});
 	compores.forEach(element => {
 		var amount;
 		amount=parseFloat(comp.dataValues[element.toLowerCase()]);
 		refinerytime+=amount/ores.find(r=>r.name==element).speed_elite_4xyield
 	});
+	if(comp.dataValues["tech2x"]!=0)
+	{
+		refinerytime+=comp.tech2x*await refineryTime(common)
+	}
+	if(comp2.dataValues["tech4x"]!=0)
+	{
+		refinerytime+=comp.tech4x*await refineryTime(rare)
+	}
+	if(comp2.dataValues["tech8x"]!=0)
+	{
+		refinerytime+=comp.tech8x*await refineryTime(exotic)
+	}
 	refinerytime=Math.round(refinerytime*100)/100
 	return refinerytime;
+}
+async function assemblerTime(comp){
+	
+	const common = await Component.findOne({where: {name:'common_tech'}});
+	const rare = await Component.findOne({where: {name:'rare_tech'}});
+	const exotic = await Component.findOne({where: {name:'exotic_tech'}});
+	if(comp.dataValues["tech2x"]!=0)
+	{
+		assemblertime+=comp.tech2x*common.assembletime
+	}
+	if(comp2.dataValues["tech4x"]!=0)
+	{
+		assemblertime+=comp.tech4x*await assemblerTime(rare)
+	}
+	if(comp2.dataValues["tech8x"]!=0)
+	{
+		assemblertime+=comp.tech8x*await assemblerTime(exotic)
+	}
+	assemblertime+=comp.assembletime
+	assemblertime=Math.round(assemblertime*100)/100
 }
 client.on('message', async message => {
 	if (message.content.startsWith(PREFIX)) {
@@ -189,14 +224,14 @@ client.on('message', async message => {
 					var amount;
 					amount=parseFloat(comp.dataValues[element.toLowerCase()]);
 					amount=amount*compamount
-					refinerytime+=amount/ores.find(r=>r.name==element).speed_elite_4xyield
 					if(amount!=0)
 						embed.addField(element, floatOutput(amount), true);
 				});
-				assemblertime+=compamount*comp.assembletime
+				refinerytime=refineryTime(comp)
+				assembletime=assemblerTime(comp)
 				refinerytime=Math.round(refinerytime*100)/100
 				assemblertime=Math.round(assemblertime*100)/100
-				embed.setDescription("Refinery time: "+timeOutput(refinerytime)+" (excluding tech)\nAssembler time: "+timeOutput(assemblertime)+" (excluding tech)");
+				embed.setDescription("Refinery time: "+timeOutput(refinerytime)+"\nAssembler time: "+timeOutput(assemblertime));
 				if(comp.dataValues["tech2x"]!=0)
 					embed.addField("Common Tech",floatOutput(comp.tech2x*compamount),true);
 				if(comp.dataValues["tech4x"]!=0)
@@ -222,25 +257,8 @@ client.on('message', async message => {
 				}
 			}else{
 				name1=comp1.name
-				let assemblertime=0;
-				refinerytime=await refineryTime(comp1)
-				if(comp1.dataValues["tech2x"]!=0)
-				{
-					refinerytime+=comp1.tech2x*await refineryTime(common)
-					assemblertime+=comp1.tech2x*common.assembletime
-				}
-				if(comp1.dataValues["tech4x"]!=0)
-				{
-					refinerytime+=comp1.tech4x*await refineryTime(rare)
-					assemblertime+=comp1.tech4x*rare.assembletime
-				}
-				if(comp1.dataValues["tech8x"]!=0)
-				{
-					refinerytime+=comp1.tech8x*await refineryTime(exotic)
-					assemblertime+=comp1.tech8x*exotic.assembletime
-				}
-				assemblertime+=comp1.assembletime
-				assemblertime=Math.round(assemblertime*100)/100
+				let refinerytime=await refineryTime(comp1)
+				let assemblertime=await assemblerTime(comp1)
 				astime1=assemblertime
 				retime1=refinerytime
 			}
@@ -257,25 +275,8 @@ client.on('message', async message => {
 				}
 			}else{
 				name2=comp2.name
-				let assemblertime=0;
-				refinerytime=await refineryTime(comp2)
-				if(comp2.dataValues["tech2x"]!=0)
-				{
-					refinerytime+=comp2.tech2x*await refineryTime(common)
-					assemblertime+=comp2.tech2x*common.assembletime
-				}
-				if(comp2.dataValues["tech4x"]!=0)
-				{
-					refinerytime+=comp2.tech4x*await refineryTime(rare)
-					assemblertime+=comp2.tech4x*rare.assembletime
-				}
-				if(comp2.dataValues["tech8x"]!=0)
-				{
-					refinerytime+=comp2.tech8x*await refineryTime(exotic)
-					assemblertime+=comp2.tech8x*exotic.assembletime
-				}
-				assemblertime+=comp2.assembletime
-				assemblertime=Math.round(assemblertime*100)/100
+				let assemblertime=await assemblerTime(comp1);
+				let refinerytime=await refineryTime(comp2)
 				astime2=assemblertime
 				retime2=refinerytime
 			}
