@@ -129,6 +129,7 @@ async function assemblerTime(comp){
 	}
 	assemblertime+=comp.assembletime
 	assemblertime=Math.round(assemblertime*100)/100
+	return assemblertime
 }
 client.on('message', async message => {
 	if (message.content.startsWith(PREFIX)) {
@@ -228,9 +229,7 @@ client.on('message', async message => {
 						embed.addField(element, floatOutput(amount), true);
 				});
 				refinerytime=await refineryTime(comp)
-				assembletime=await assemblerTime(comp)
-				refinerytime=Math.round(refinerytime*100)/100
-				assemblertime=Math.round(assemblertime*100)/100
+				assemblertime=await assemblerTime(comp)
 				embed.setDescription("Refinery time: "+timeOutput(refinerytime)+"\nAssembler time: "+timeOutput(assemblertime));
 				if(comp.dataValues["tech2x"]!=0)
 					embed.addField("Common Tech",floatOutput(comp.tech2x*compamount),true);
