@@ -95,7 +95,7 @@ client.on('message', async message => {
 			let embed = new Discord.MessageEmbed()
 				.setTitle("I know of this components:")
 				.setDescription(desc)
-				.setThumbnail('https://i.imgur.com/a/itMMMi8');
+				.setAuthor('TUF','https://i.imgur.com/aJfvqAB');
 			message.channel.send(embed);
 		}
 		if (command === 'common') {
