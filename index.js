@@ -99,11 +99,11 @@ async function refineryTime(comp){
 	{
 		refinerytime+=comp.tech2x*(await refineryTime(common))
 	}
-	if(comp2.dataValues["tech4x"]!=0)
+	if(comp.dataValues["tech4x"]!=0)
 	{
 		refinerytime+=comp.tech4x*(await refineryTime(rare))
 	}
-	if(comp2.dataValues["tech8x"]!=0)
+	if(comp.dataValues["tech8x"]!=0)
 	{
 		refinerytime+=comp.tech8x*(await refineryTime(exotic))
 	}
@@ -111,7 +111,7 @@ async function refineryTime(comp){
 	return refinerytime;
 }
 async function assemblerTime(comp){
-	
+	let assemblertime=0
 	const common = await Component.findOne({where: {name:'common_tech'}});
 	const rare = await Component.findOne({where: {name:'rare_tech'}});
 	const exotic = await Component.findOne({where: {name:'exotic_tech'}});
@@ -119,11 +119,11 @@ async function assemblerTime(comp){
 	{
 		assemblertime+=comp.tech2x*common.assembletime
 	}
-	if(comp2.dataValues["tech4x"]!=0)
+	if(comp.dataValues["tech4x"]!=0)
 	{
 		assemblertime+=comp.tech4x*(await assemblerTime(rare))
 	}
-	if(comp2.dataValues["tech8x"]!=0)
+	if(comp.dataValues["tech8x"]!=0)
 	{
 		assemblertime+=comp.tech8x*(await assemblerTime(exotic))
 	}
@@ -227,8 +227,8 @@ client.on('message', async message => {
 					if(amount!=0)
 						embed.addField(element, floatOutput(amount), true);
 				});
-				refinerytime=refineryTime(comp)
-				assembletime=assemblerTime(comp)
+				refinerytime=await refineryTime(comp)
+				assembletime=await assemblerTime(comp)
 				refinerytime=Math.round(refinerytime*100)/100
 				assemblertime=Math.round(assemblertime*100)/100
 				embed.setDescription("Refinery time: "+timeOutput(refinerytime)+"\nAssembler time: "+timeOutput(assemblertime));
