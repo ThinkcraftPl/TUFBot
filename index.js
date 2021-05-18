@@ -53,6 +53,16 @@ const Component = sequelize.define('Component', {
 	assembletime: Sequelize.FLOAT,
 });
 Component.sync({ alter: true });
+const Ore = sequelize.define('Ore', {
+	name: {
+		type: Sequelize.STRING,
+		allowNull:false,
+		unique:true
+	},
+	yield_elite_4xyield: Sequelize.FLOAT,
+	speed_elite_4xyield: Sequelize.FLOAT,
+});
+Ore.sync({ alter: true });
 client.on('message', async message => {
 	if (message.content.startsWith(PREFIX)) {
 		const input = message.content.slice(PREFIX.length).trim().split(' ');
@@ -98,6 +108,22 @@ client.on('message', async message => {
 				.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
 				.setFooter('Assemble time using elite assembler with 4 speed modules and time measured by timer on phone');
 			message.channel.send(embed);
+		}else if(command === 'addore'){
+			if(message.author.id==404361385863282688){
+				try {
+					const ore = await Ores.create({
+						name: commandArgs[0],
+						yield_elite_4xyield: parseFloat(commandArgs[1]),
+						speed_elite_4xyield: parseFloat(commandArgs[2])
+					});
+				}
+				catch (e) {
+					console.log(e)
+					message.reply("there was an error");
+				}
+			}else{
+				message.reply("You have not enough permissions to perform this command");
+			}
 		}
 		if (command === 'common') {
 			let number=parseInt(commandArgs[0])
