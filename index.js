@@ -32,12 +32,54 @@ sequelize
   .catch(err => {
     console.error('Unable to connect to the database:', err);
   });
+const Component = sequelize.define('Component', {
+	name: {
+		type: Sequelize.STRING,
+		allowNull: false,
+		unique:true
+	},
+	iron: Sequelize.INTEGER,
+	silicon: Sequelize.INTEGER,
+	nickel: Sequelize.INTEGER,
+	cobalt: Sequelize.INTEGER,
+	silver: Sequelize.INTEGER,
+	gold: Sequelize.INTEGER,
+	uranium: Sequelize.INTEGER,
+	platinum: Sequelize.INTEGER,
+	magnesium: Sequelize.INTEGER,
+	tech2x: Sequelize.INTEGER,
+	tech4x: Sequelize.INTEGER,
+	tech8x: Sequelize.INTEGER,
+	assembletime: Sequelize.FLOAT,
+});
+Component.sync({ alter: true });
 client.on('message', async message => {
 	if (message.content.startsWith(PREFIX)) {
 		const input = message.content.slice(PREFIX.length).trim().split(' ');
 		const command = input.shift();
 		const commandArgs = input.join(' ').split(' ');
-
+		if (command === 'addcomp'){
+			if(message.author.id===404361385863282688){
+				const comp = await Component.create({
+					name: commandArgs[0],
+					iron: parseInt(commandArgs[1]),
+					silicon: parseInt(commandArgs[2]),
+					nickel: parseInt(commandArgs[3]),
+					cobalt: parseInt(commandArgs[4]),
+					silver: parseInt(commandArgs[5]),
+					gold: parseInt(commandArgs[6]),
+					uranium: parseInt(commandArgs[7]),
+					platinum: parseInt(commandArgs[8]),
+					magnesium: parseInt(commandArgs[9]),
+					tech2x: parseInt(commandArgs[10]),
+					tech4x: parseInt(commandArgs[11]),
+					tech8x: parseInt(commandArgs[12]),
+					assembletime: parseFloat(commandArgs[13]),
+				})
+			}else{
+				message.reply("You have not enough permissions to perform this command");
+			}
+		}
 		if (command === 'common') {
 			let number=parseInt(commandArgs[0])
 			var desc=""
