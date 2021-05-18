@@ -62,7 +62,7 @@ const Ore = sequelize.define('Ore', {
 	yield_elite_4xyield: Sequelize.FLOAT,
 	speed_elite_4xyield: Sequelize.FLOAT,
 });
-Ore.sync({ alter: true });
+Ore.sync();
 client.on('message', async message => {
 	if (message.content.startsWith(PREFIX)) {
 		const input = message.content.slice(PREFIX.length).trim().split(' ');
