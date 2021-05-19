@@ -1,7 +1,8 @@
 const Discord = require('discord.js');
-const { or } = require('sequelize');
+const { or, InvalidConnectionError } = require('sequelize');
 const Sequelize = require('sequelize');
 const { debuglog } = require('util');
+const { QueryTypes } = require('sequelize');
 const credentials = require('./credentials.json');
 
 const client = new Discord.Client();
@@ -158,6 +159,29 @@ client.on('message', async message => {
 		const input = message.content.slice(PREFIX.length).trim().split(' ');
 		const command = input.shift();
 		const commandArgs = input.join(' ').split(' ');
+		let useroptions = await UserOpt.findOne({where: {userid: message.author.id}})
+		if(useroptions===null)
+		{
+			try{
+				const useropt = await UserOpt.create({
+					userid: message.author.id,
+					iron_weight: 1,
+					silicon_weight: 1,
+					nickel_weight: 1,
+					cobalt_weight: 1,
+					silver_weight: 1,
+					gold_weight: 1,
+					uranium_weight: 1,
+					platinum_weight: 1,
+					magnesium_weight: 1,
+					gravel_weight: 1,
+					outputtype: 0,
+				});
+			}catch(e){
+				console.log(e)
+			}
+			useroptions = await UserOpt.findOne({where: {userid: message.author.id}})
+		}
 		if (command === 'addcomp'){
 			if(message.author.id==404361385863282688){
 				try {
@@ -331,47 +355,51 @@ client.on('message', async message => {
 				message.channel.send(embed)
 			}
 		}else if(command === 'useropt'){
-			switch(commandArgs[0]){
-				default:
-					const avoptions = ["iron_weight","silicon_weight","nickel_weight","cobalt_weight","silver_weight","gold_weight","uranium_weight","platinum_weight","magnesium_weight","gravel_weight","outputtype"]
-					let useroptions = await UserOpt.findOne({where: {userid: message.author.id}})
-					if(useroptions===null)
-					{
-						try{
-							const useropt = await UserOpt.create({
-								userid: message.author.id,
-								iron_weight: 1,
-								silicon_weight: 1,
-								nickel_weight: 1,
-								cobalt_weight: 1,
-								silver_weight: 1,
-								gold_weight: 1,
-								uranium_weight: 1,
-								platinum_weight: 1,
-								magnesium_weight: 1,
-								gravel_weight: 1,
-								outputtype: 0,
-							});
-						}catch(e){
-							console.log(e)
-						}
-						useroptions = await UserOpt.findOne({where: {userid: message.author.id}})
+			const avoptions = ["iron_weight","silicon_weight","nickel_weight","cobalt_weight","silver_weight","gold_weight","uranium_weight","platinum_weight","magnesium_weight","gravel_weight","outputtype"]
+			let x;
+			if(avoptions.find(r=>r==commandArgs[0])==x)
+			{	
+				let embed = new Discord.MessageEmbed()
+					.setTitle(message.author.username+" options")
+					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+					.setFooter('To change option type '+PREFIX+'useropt `option_code` `new value`');
+				avoptions.forEach(element=>{
+					if(element=='outputtype')
+						embed.addField('outputtype: '+useroptions.dataValues[element],'false means data outputs get shortened (to k and mil), true means data stays raw.')
+					else if(element.endsWith('_weight')){
+						let ingotname=element.substring(0, element.length - 7);
+						ingotname=ingotname.substring(0,1).toUpperCase()+ingotname.substring(1, ingotname.length)
+						embed.addField(element+': '+useroptions.dataValues[element],'Weight of '+ingotname+' when used in comparison of two components.')
 					}
-					let embed = new Discord.MessageEmbed()
-						.setTitle(message.author.username+" options")
-						.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
-						.setFooter('To change option type '+PREFIX+'useropt `option_code` `new value`');
-					avoptions.forEach(element=>{
-						if(element=='outputtype')
-							embed.addField('Output type: '+useroptions.dataValues[element],'0 means data outputs get shortened (to k and mil), 1 means data stays raw.')
-						else if(element.endsWith('_weight')){
-							let ingotname=element.substring(0, element.length - 7);
-							ingotname=ingotname.substring(0,1).toUpperCase()+ingotname.substring(1, ingotname.length)
-							embed.addField(element+': '+useroptions.dataValues[element],'Weight of '+ingotname+' when used in comparison of two components.')
-						}
-					})
-					message.channel.send(embed)
-					break;
+				})
+				message.channel.send(embed)	
+			}else{
+				let newvalue;
+				if(commandArgs[0]=="outputtype")
+				{
+					if(commandArgs[1]=="true")
+						newvalue=true;
+					else
+						newvalue=false;
+				}else{
+					if(isNaN(parseFloat(commandArgs[1]))){
+						newvalue=1;
+					}else{
+						newvalue=parseFloat(commandArgs[1])
+					}
+				}
+				let column=commandArgs[0]
+					 if(column=="iron_weight") 		await UserOpt.update({ iron_weight: newvalue }, 		{where: {userid: message.author.id}});
+				else if(column=="silicon_weight") 	await UserOpt.update({ silicon_weight: newvalue }, 	{where: {userid: message.author.id}});
+				else if(column=="nickel_weight") 	await UserOpt.update({ nickel_weight: newvalue }, 		{where: {userid: message.author.id}});
+				else if(column=="cobalt_weight") 	await UserOpt.update({ cobalt_weight: newvalue }, 		{where: {userid: message.author.id}});
+				else if(column=="silver_wright") 	await UserOpt.update({ silver_weight: newvalue }, 		{where: {userid: message.author.id}});
+				else if(column=="gold_weight") 		await UserOpt.update({ gold_weight: newvalue }, 		{where: {userid: message.author.id}});
+				else if(column=="uranium_weight") 	await UserOpt.update({ uranium_weight: newvalue }, 	{where: {userid: message.author.id}});
+				else if(column=="platinum_weight") 	await UserOpt.update({ platinum_weight: newvalue }, 	{where: {userid: message.author.id}});
+				else if(column=="magnesium_weight") await UserOpt.update({ magnesium_weight: newvalue }, 	{where: {userid: message.author.id}});
+				else if(column=="gravel_weight") 	await UserOpt.update({ gravel_weight: newvalue }, 		{where: {userid: message.author.id}});
+				else if(column=="outputtype") 		await UserOpt.update({ outputtype: newvalue }, 		{where: {userid: message.author.id}});
 			}
 		}
 		{
