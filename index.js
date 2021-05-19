@@ -74,17 +74,17 @@ const UserOpt = sequelize.define('UserOpt',{
 		allowNull:false,
 		unique:true
 	},
-	iron_weight:{type: Sequelize.FLOAT,default: 1},
-	silicon_weight:{type: Sequelize.FLOAT,default: 1},
-	nickel_weight:{type: Sequelize.FLOAT,default: 1},
-	cobalt_weight:{type: Sequelize.FLOAT,default: 1},
-	silver_weight:{type: Sequelize.FLOAT,default: 1},
-	gold_weight:{type: Sequelize.FLOAT,default: 1},
-	uranium_weight:{type: Sequelize.FLOAT,default: 1},
-	platinum_weight:{type: Sequelize.FLOAT,default: 1},
-	magnesium_weight:{type: Sequelize.FLOAT,default: 1},
-	gravel_weight:{type: Sequelize.FLOAT,default: 1},
-	outputtype:{type: Sequelize.BOOLEAN,default: 0}
+	iron_weight:{type: Sequelize.FLOAT,default: 1,allowNull: false},
+	silicon_weight:{type: Sequelize.FLOAT,default: 1,allowNull: false},
+	nickel_weight:{type: Sequelize.FLOAT,default: 1,allowNull: false},
+	cobalt_weight:{type: Sequelize.FLOAT,default: 1,allowNull: false},
+	silver_weight:{type: Sequelize.FLOAT,default: 1,allowNull: false},
+	gold_weight:{type: Sequelize.FLOAT,default: 1,allowNull: false},
+	uranium_weight:{type: Sequelize.FLOAT,default: 1,allowNull: false},
+	platinum_weight:{type: Sequelize.FLOAT,default: 1,allowNull: false},
+	magnesium_weight:{type: Sequelize.FLOAT,default: 1,allowNull: false},
+	gravel_weight:{type: Sequelize.FLOAT,default: 1,allowNull: false},
+	outputtype:{type: Sequelize.BOOLEAN,default: 0,allowNull: false}
 });
 UserOpt.sync({alter: true});
 function floatOutput(input){
@@ -332,15 +332,25 @@ client.on('message', async message => {
 			}
 		}else if(command === 'useropt'){
 			switch(commandArgs[0]){
-
 				default:
 					const avoptions = ["iron_weight","silicon_weight","nickel_weight","cobalt_weight","silver_weight","gold_weight","uranium_weight","platinum_weight","magnesium_weight","gravel_weight","outputtype"]
 					let useroptions = await UserOpt.findOne({where: {userid: message.author.id}})
-					if(useroptions==null)
+					if(useroptions===null)
 					{
 						try{
 							const useropt = await UserOpt.create({
-								userid: message.author.id
+								userid: message.author.id,
+								iron_weight: 1,
+								silicon_weight: 1,
+								nickel_weight: 1,
+								cobalt_weight: 1,
+								silver_weight: 1,
+								gold_weight: 1,
+								uranium_weight: 1,
+								platinum_weight: 1,
+								magnesium_weight: 1,
+								gravel_weight: 1,
+								outputtype: 0,
 							});
 						}catch(e){
 							console.log(e)
