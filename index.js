@@ -171,18 +171,19 @@ async function resourceWeight(comp, useroptions){
 		var amount;
 		amount=parseFloat(comp.dataValues[element.toLowerCase()]);
 		resourceweight+=amount*useroptions.dataValues[element.toLowerCase()+"_weight"]
+		
 	});
 	if(comp.dataValues["tech2x"]!=0)
 	{
-		resourceweight+=comp.tech2x*(await refineryTime(common))
+		resourceweight+=comp.tech2x*(await resourceWeight(common, useroptions))
 	}
 	if(comp.dataValues["tech4x"]!=0)
 	{
-		resourceweight+=comp.tech4x*(await refineryTime(rare))
+		resourceweight+=comp.tech4x*(await resourceWeight(rare, useroptions))
 	}
 	if(comp.dataValues["tech8x"]!=0)
 	{
-		resourceweight+=comp.tech8x*(await refineryTime(exotic))
+		resourceweight+=comp.tech8x*(await resourceWeight(exotic, useroptions))
 	}
 	return resourceweight;
 }
@@ -342,10 +343,9 @@ client.on('message', async message => {
 				name1=comp1.name
 				let refinerytime=await refineryTime(comp1)
 				let assemblertime=await assemblerTime(comp1)
-				console.log(assemblertime)
 				astime1=assemblertime
 				retime1=refinerytime
-				weight1=resourceWeight(comp1,useroptions)
+				weight1=await resourceWeight(comp1,useroptions)
 			}
 			let astime2=0,retime2=0,weight2=0,name2=0;
 			const comp2 = await Component.findOne({where: {name:commandArgs[2]}});
@@ -363,10 +363,9 @@ client.on('message', async message => {
 				name2=comp2.name
 				let assemblertime=await assemblerTime(comp2);
 				let refinerytime=await refineryTime(comp2)
-				console.log(assemblertime)
 				astime2=assemblertime
 				retime2=refinerytime
-				weight2=resourceWeight(comp2,useroptions)
+				weight2=await resourceWeight(comp2,useroptions)
 			}
 			comparednumber=parseInt(commandArgs[1])
 			if(isNaN(comparednumber))
