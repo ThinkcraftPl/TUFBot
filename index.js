@@ -352,7 +352,7 @@ client.on('message', async message => {
 						.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
 						.setFooter('To change option type '+PREFIX+'useropt `option_code` `new value`');
 					avoptions.forEach(element=>{
-						if(element==outputtype)
+						if(element=='outputtype')
 							embed.addField('Output type: '+useroptions.dataValues[element],'0 means data outputs get shortened (to k and mil), 1 means data stays raw.')
 						else if(element.endsWith('_weight')){
 							let ingotname=element.substring(0, element.length - 7);
