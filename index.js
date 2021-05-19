@@ -91,7 +91,7 @@ UserOpt.sync({alter: true});
 function floatOutput(input,type){
 	let output=""
 	if(type){
-		return Math,round(input/0.01)/100
+		return Math.round(input/0.01)/100
 	}
 	if (input>=1000000)
 		output=Math.round(input/10000)/100+"mil"
@@ -104,7 +104,7 @@ function floatOutput(input,type){
 function timeOutput(input,type){
 	let output=""
 	if(type){
-		return Math,round(input/0.01)/100+" seconds"
+		return Math.round(input/0.01)/100+" seconds"
 	}
 	if(input>=3600)
 		output=Math.round(input/36)/100+" hours"
