@@ -48,6 +48,10 @@ const Component = sequelize.define('Component', {
 	uranium: Sequelize.FLOAT,
 	platinum: Sequelize.FLOAT,
 	magnesium: Sequelize.FLOAT,
+	gravel:{
+		type: Sequelize.FLOAT,
+		default: 0
+	},
 	tech2x: Sequelize.FLOAT,
 	tech4x: Sequelize.FLOAT,
 	tech8x: Sequelize.FLOAT,
@@ -64,6 +68,25 @@ const Ore = sequelize.define('Ore', {
 	speed_elite_4xyield: Sequelize.FLOAT,
 });
 Ore.sync({ alter: true });
+const UserOpt = sequelize.define('UserOpt',{
+	userid:{
+		type: Sequelize.BIGINT,
+		allowNull:false,
+		unique:true
+	},
+	iron_weight:{type: Sequelize.FLOAT,default: 1},
+	silicon_weight:{type: Sequelize.FLOAT,default: 1},
+	nickel_weight:{type: Sequelize.FLOAT,default: 1},
+	cobalt_weight:{type: Sequelize.FLOAT,default: 1},
+	silver_weight:{type: Sequelize.FLOAT,default: 1},
+	gold_weight:{type: Sequelize.FLOAT,default: 1},
+	uranium_weight:{type: Sequelize.FLOAT,default: 1},
+	platinum_weight:{type: Sequelize.FLOAT,default: 1},
+	magnesium_weight:{type: Sequelize.FLOAT,default: 1},
+	gravel_weight:{type: Sequelize.FLOAT,default: 1},
+	outputtype:{type: Sequelize.BOOLEAN,default: 0}
+});
+UserOpt.sync({alter: true});
 function floatOutput(input){
 	let output=""
 	if (input>=1000000)
@@ -107,7 +130,6 @@ async function refineryTime(comp){
 	{
 		refinerytime+=comp.tech8x*(await refineryTime(exotic))
 	}
-	refinerytime=Math.round(refinerytime*100)/100
 	return refinerytime;
 }
 async function assemblerTime(comp){
@@ -128,9 +150,9 @@ async function assemblerTime(comp){
 		assemblertime+=comp.tech8x*(await assemblerTime(exotic))
 	}
 	assemblertime+=comp.assembletime
-	assemblertime=Math.round(assemblertime*100)/100
 	return assemblertime
 }
+
 client.on('message', async message => {
 	if (message.content.startsWith(PREFIX)) {
 		const input = message.content.slice(PREFIX.length).trim().split(' ');
@@ -166,9 +188,9 @@ client.on('message', async message => {
 		}else if(command === 'complist')
 		{
 			const comps = await Component.findAll();
-			var desc="Name | Fe | Si | Ni | Co | Ag | Au | Ur | Pl | Mg | 2x | 4x | 8x | assembletime\n";
+			var desc="Name | Fe | Si | Ni | Co | Ag | Au | Ur | Pl | Mg | Gravel | 2x | 4x | 8x | assembletime\n";
 			(comps).forEach(element => {
-				desc+=element.name+" | "+element.iron+" | "+element.silicon+" | "+element.nickel+" | "+element.cobalt+" | "+element.silver+" | "+element.gold+" | "+element.uranium+" | "+element.platinum+" | "+element.magnesium+" | "+element.tech2x+" | "+element.tech4x+" | "+element.tech8x+" | "+element.assembletime+"\n";
+				desc+=element.name+" | "+element.iron+" | "+element.silicon+" | "+element.nickel+" | "+element.cobalt+" | "+element.silver+" | "+element.gold+" | "+element.uranium+" | "+element.platinum+" | "+element.magnesium+" |" + element.gravel +" | "+element.tech2x+" | "+element.tech4x+" | "+element.tech8x+" | "+element.assembletime+"\n";
 			});
 			let embed = new Discord.MessageEmbed()
 				.setTitle("I know of this components:")
@@ -215,7 +237,7 @@ client.on('message', async message => {
 				if(isNaN(compamount))
 					compamount=1
 				const ores = await Ore.findAll();
-				let compores = ["Iron","Silicon","Nickel","Cobalt","Silver","Gold","Uranium","Platinum","Magnesium"]
+				let compores = ["Iron","Silicon","Nickel","Cobalt","Silver","Gold","Uranium","Platinum","Magnesium","Gravel"]
 				var refinerytime=0, assemblertime=0;
 				let embed = new Discord.MessageEmbed()
 					.setTitle(comp.name+" info ("+floatOutput(compamount)+")")
@@ -230,6 +252,11 @@ client.on('message', async message => {
 				});
 				refinerytime=await refineryTime(comp)
 				assemblertime=await assemblerTime(comp)
+				refinerytime*=compamount
+				assemblertime*=compamount
+				assemblertime=Math.round(assemblertime*100)/100
+				refinerytime=Math.round(refinerytime*100)/100
+				
 				embed.setDescription("Refinery time: "+timeOutput(refinerytime)+"\nAssembler time: "+timeOutput(assemblertime));
 				if(comp.dataValues["tech2x"]!=0)
 					embed.addField("Common Tech",floatOutput(comp.tech2x*compamount),true);
@@ -265,7 +292,7 @@ client.on('message', async message => {
 			let astime2=0,retime2=0,name2=0;
 			const comp2 = await Component.findOne({where: {name:commandArgs[2]}});
 			if(comp2==null){
-				const ore2 = await Ore.findeOne({where: {name:commandArgs[2]}});
+				const ore2 = await Ore.findOne({where: {name:commandArgs[2]}});
 				if(ore2!=null){
 					name2=ore2.name
 					retime2=1/ore2.speed_elite_4xyield
@@ -302,6 +329,28 @@ client.on('message', async message => {
 					embed.addField("Max of both times time comparison:",""+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*Math.max(retime1,astime1)/Math.max(retime2,astime2))+" of "+name2)
 				}
 				message.channel.send(embed)
+			}
+		}else if(command === 'useropt'){
+			switch(commandArgs[0]){
+
+				default:
+					const avoptions = ["iron_weight","silicon_weight","nickel_weight","cobalt_weight","silver_weight","gold_weight","uranium_weight","platinum_weight","magnesium_weight","gravel_weight","outputtype"]
+					const useroptions = await UserOpt.findOne({where: {userid: message.author.id}})
+					let embed = new Discord.MessageEmbed()
+						.setTitle(message.author.username+" options")
+						.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+						.setFooter('To change option type '+PREFIX+'useropt `option_code` `new value`');
+					avoptions.forEach(element=>{
+						if(element==outputtype)
+							embed.addField('Output type: '+useroptions.dataValues[element],'0 means data outputs get shortened (to k and mil), 1 means data stays raw.')
+						else if(element.endsWith('_weight')){
+							let ingotname=element.substring(0, element.length - 7);
+							ingotname=ingotname.substring(0,1).toUpperCase()+ingotname.substring(1, ingotname.length)
+							embed.addField(element+': '+useroptions.dataValues[element],'Weight of '+ingotname+' when used in comparison of two components.')
+						}
+					})
+					message.channel.send(embed)
+					break;
 			}
 		}
 		{
