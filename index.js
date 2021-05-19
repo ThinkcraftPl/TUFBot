@@ -20,10 +20,10 @@ var sequelize = new Sequelize(
 		host: credentials.db_ip,
 		port: credentials.db_port,
 		dialect: 'mysql',
-        logging: console.log,  
-        define: {  
-            timestamps: false  
-        }  
+        // logging: console.log,  
+        // define: {  
+        //     timestamps: false  
+        // }
     }
 );  
 sequelize
