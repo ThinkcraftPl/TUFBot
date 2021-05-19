@@ -117,7 +117,7 @@ function timeOutput(input,type){
 async function refineryTime(comp){
 	const ores = await Ore.findAll();
 	let refinerytime=0
-	let compores = ["Iron","Silicon","Nickel","Cobalt","Silver","Gold","Uranium","Platinum","Magnesium"]
+	let compores = ["Iron","Silicon","Nickel","Cobalt","Silver","Gold","Uranium","Platinum","Magnesium","Gravel"]
 	const common = await Component.findOne({where: {name:'common_tech'}});
 	const rare = await Component.findOne({where: {name:'rare_tech'}});
 	const exotic = await Component.findOne({where: {name:'exotic_tech'}});
@@ -160,7 +160,32 @@ async function assemblerTime(comp){
 	assemblertime+=comp.assembletime
 	return assemblertime
 }
-
+async function resourceWeight(comp, useroptions){
+	const ores = await Ore.findAll();
+	let resourceweight=0
+	let compores = ["Iron","Silicon","Nickel","Cobalt","Silver","Gold","Uranium","Platinum","Magnesium","Gravel"]
+	const common = await Component.findOne({where: {name:'common_tech'}});
+	const rare = await Component.findOne({where: {name:'rare_tech'}});
+	const exotic = await Component.findOne({where: {name:'exotic_tech'}});
+	compores.forEach(element => {
+		var amount;
+		amount=parseFloat(comp.dataValues[element.toLowerCase()]);
+		resourceweight+=amount*useroptions.dataValues[element.toLowerCase()+"_weight"]
+	});
+	if(comp.dataValues["tech2x"]!=0)
+	{
+		resourceweight+=comp.tech2x*(await refineryTime(common))
+	}
+	if(comp.dataValues["tech4x"]!=0)
+	{
+		resourceweight+=comp.tech4x*(await refineryTime(rare))
+	}
+	if(comp.dataValues["tech8x"]!=0)
+	{
+		resourceweight+=comp.tech8x*(await refineryTime(exotic))
+	}
+	return resourceweight;
+}
 client.on('message', async message => {
 	if (message.content.startsWith(PREFIX)) {
 		const input = message.content.slice(PREFIX.length).trim().split(' ');
@@ -302,13 +327,14 @@ client.on('message', async message => {
 			const common = await Component.findOne({where: {name:'common_tech'}});
 			const rare = await Component.findOne({where: {name:'rare_tech'}});
 			const exotic = await Component.findOne({where: {name:'exotic_tech'}});
-			let astime1=0,retime1=0,name1=0,error=false;
+			let astime1=0,retime1=0,name1=0,weight1=0,error=false;
 			if(comp1==null){
 				const ore1 = await Ore.findOne({where: {name:commandArgs[0]}});
 				if(ore1!=null){
 					name1=ore1.name
 					retime1=1/ore1.speed_elite_4xyield
 					astime1=0
+					weight1=useroptions.dataValues[name1.toLowerCase()+"_weight"]
 				}else{
 					error=true
 				}
@@ -319,8 +345,9 @@ client.on('message', async message => {
 				console.log(assemblertime)
 				astime1=assemblertime
 				retime1=refinerytime
+				weight1=resourceWeight(comp1,useroptions)
 			}
-			let astime2=0,retime2=0,name2=0;
+			let astime2=0,retime2=0,weight2=0,name2=0;
 			const comp2 = await Component.findOne({where: {name:commandArgs[2]}});
 			if(comp2==null){
 				const ore2 = await Ore.findOne({where: {name:commandArgs[2]}});
@@ -328,6 +355,7 @@ client.on('message', async message => {
 					name2=ore2.name
 					retime2=1/ore2.speed_elite_4xyield
 					astime2=0
+					weight2=useroptions.dataValues[name2.toLowerCase()+"_weight"]
 				}else{
 					error=true
 				}
@@ -338,6 +366,7 @@ client.on('message', async message => {
 				console.log(assemblertime)
 				astime2=assemblertime
 				retime2=refinerytime
+				weight2=resourceWeight(comp2,useroptions)
 			}
 			comparednumber=parseInt(commandArgs[1])
 			if(isNaN(comparednumber))
@@ -351,13 +380,15 @@ client.on('message', async message => {
 						.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
 						.setFooter('Default time is measured using elite 4x yield refineries and elite 4x speed assemblers.');
 				if(astime1==0 || astime2==0){
-					message.reply("At least one of compared items is an ingot, so only refining time is compared")
+					message.reply("At least one of compared items is an ingot, so assembler time is not compared")
 					embed.addField("Refining time comparison:",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime1/retime2,useroptions.outputtype)+" of "+name2)
+					embed.addField("Resource weight comparison (user preferences can be changed using tuf!useropt)",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*weight1/weight2,useroptions.outputtype)+" of "+name2)
 				}else{
 					
 					embed.addField("Assembling time comparison:",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*astime1/astime2,useroptions.outputtype)+" of "+name2)
 					embed.addField("Refining time comparison:",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime1/retime2,useroptions.outputtype)+" of "+name2)
 					embed.addField("Max of both times time comparison:",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*Math.max(retime1,astime1)/Math.max(retime2,astime2),useroptions.outputtype)+" of "+name2)
+					embed.addField("Resource weight comparison (user preferences can be changed using tuf!useropt)",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*weight1/weight2,useroptions.outputtype)+" of "+name2)
 				}
 				message.channel.send(embed)
 			}
@@ -407,6 +438,7 @@ client.on('message', async message => {
 				else if(column=="magnesium_weight") await UserOpt.update({ magnesium_weight: newvalue }, 	{where: {userid: message.author.id}});
 				else if(column=="gravel_weight") 	await UserOpt.update({ gravel_weight: newvalue }, 		{where: {userid: message.author.id}});
 				else if(column=="outputtype") 		await UserOpt.update({ outputtype: newvalue }, 		{where: {userid: message.author.id}});
+				message.reply("Option "+column+" changed to "+newvalue+".")
 			}
 		}
 	}
