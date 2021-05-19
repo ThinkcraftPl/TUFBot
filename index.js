@@ -88,8 +88,11 @@ const UserOpt = sequelize.define('UserOpt',{
 	outputtype:{type: Sequelize.BOOLEAN,default: 0,allowNull: false}
 });
 UserOpt.sync({alter: true});
-function floatOutput(input){
+function floatOutput(input,type){
 	let output=""
+	if(type){
+		return Math,round(input/0.01)/100
+	}
 	if (input>=1000000)
 		output=Math.round(input/10000)/100+"mil"
 	else if(input>=1000)
@@ -98,7 +101,11 @@ function floatOutput(input){
 		output=Math.round(input/0.01)/100
 	return output;
 }
-function timeOutput(input){
+function timeOutput(input,type){
+	let output=""
+	if(type){
+		return Math,round(input/0.01)/100+" seconds"
+	}
 	if(input>=3600)
 		output=Math.round(input/36)/100+" hours"
 	else if(input>=60)
@@ -264,7 +271,7 @@ client.on('message', async message => {
 				let compores = ["Iron","Silicon","Nickel","Cobalt","Silver","Gold","Uranium","Platinum","Magnesium","Gravel"]
 				var refinerytime=0, assemblertime=0;
 				let embed = new Discord.MessageEmbed()
-					.setTitle(comp.name+" info ("+floatOutput(compamount)+")")
+					.setTitle(comp.name+" info ("+floatOutput(compamount,useroptions.outputtype)+")")
 					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
 					.setFooter('Default time is measured using elite 4x yield refineries and elite 4x speed assemblers');
 				compores.forEach(element => {
@@ -272,7 +279,7 @@ client.on('message', async message => {
 					amount=parseFloat(comp.dataValues[element.toLowerCase()]);
 					amount=amount*compamount
 					if(amount!=0)
-						embed.addField(element, floatOutput(amount), true);
+						embed.addField(element, floatOutput(amount,useroptions.outputtype), true);
 				});
 				refinerytime=await refineryTime(comp)
 				assemblertime=await assemblerTime(comp)
@@ -281,13 +288,13 @@ client.on('message', async message => {
 				assemblertime=Math.round(assemblertime*100)/100
 				refinerytime=Math.round(refinerytime*100)/100
 				
-				embed.setDescription("Refinery time: "+timeOutput(refinerytime)+"\nAssembler time: "+timeOutput(assemblertime));
+				embed.setDescription("Refinery time: "+timeOutput(refinerytime,useroptions.outputtype)+"\nAssembler time: "+timeOutput(assemblertime,useroptions.outputtype));
 				if(comp.dataValues["tech2x"]!=0)
-					embed.addField("Common Tech",floatOutput(comp.tech2x*compamount),true);
+					embed.addField("Common Tech",floatOutput(comp.tech2x*compamount,useroptions.outputtype),true);
 				if(comp.dataValues["tech4x"]!=0)
-					embed.addField("Rare Tech",floatOutput(comp.tech4x*compamount),true);
+					embed.addField("Rare Tech",floatOutput(comp.tech4x*compamount,useroptions.outputtype),true);
 				if(comp.dataValues["tech8x"]!=0)
-					embed.addField("Exotic Tech",floatOutput(comp.tech8x*compamount),true);
+					embed.addField("Exotic Tech",floatOutput(comp.tech8x*compamount,useroptions.outputtype),true);
 				message.channel.send(embed);
 			}
 		}else if(command === 'compare'){
@@ -345,12 +352,12 @@ client.on('message', async message => {
 						.setFooter('Default time is measured using elite 4x yield refineries and elite 4x speed assemblers.');
 				if(astime1==0 || astime2==0){
 					message.reply("At least one of compared items is an ingot, so only refining time is compared")
-					embed.addField("Refining time comparison:",""+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime1/retime2)+" of "+name2)
+					embed.addField("Refining time comparison:",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime1/retime2,useroptions.outputtype)+" of "+name2)
 				}else{
 					
-					embed.addField("Assembling time comparison:",""+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*astime1/astime2)+" of "+name2)
-					embed.addField("Refining time comparison:",""+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime1/retime2)+" of "+name2)
-					embed.addField("Max of both times time comparison:",""+floatOutput(comparednumber)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*Math.max(retime1,astime1)/Math.max(retime2,astime2))+" of "+name2)
+					embed.addField("Assembling time comparison:",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*astime1/astime2,useroptions.outputtype)+" of "+name2)
+					embed.addField("Refining time comparison:",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime1/retime2,useroptions.outputtype)+" of "+name2)
+					embed.addField("Max of both times time comparison:",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*Math.max(retime1,astime1)/Math.max(retime2,astime2),useroptions.outputtype)+" of "+name2)
 				}
 				message.channel.send(embed)
 			}
@@ -401,84 +408,6 @@ client.on('message', async message => {
 				else if(column=="gravel_weight") 	await UserOpt.update({ gravel_weight: newvalue }, 		{where: {userid: message.author.id}});
 				else if(column=="outputtype") 		await UserOpt.update({ outputtype: newvalue }, 		{where: {userid: message.author.id}});
 			}
-		}
-		{
-		/*if (command === 'common') {
-			let number=parseInt(commandArgs[0])
-			var desc=""
-			desc+="Iron ingots: "+Math.round(90*number)+"\n"
-			desc+="Silicon wafers: "+Math.round(80*number)+"\n"
-			desc+="Cobalt ingots: "+Math.round(32*number)+"\n"
-			desc+="Silver ingots: "+Math.round(24*number)+"\n"
-			desc+="Gold ingots: "+Math.round(16*number)+"\n\n"
-
-			desc+="Iron ore: "+Math.round(90*number/1.7)+"\n"
-			desc+="Silicon ore: "+Math.round(80*number/1.7)+"\n"
-			desc+="Cobalt ore: "+Math.round(32*number/0.72)+"\n"
-			desc+="Silver ore: "+Math.round(24*number/0.24)+"\n"
-			desc+="Gold ore: "+Math.round(16*number/0.024)+"\n\n"
-
-			desc+="Time to refine with 1 refinery: "+Math.round(26.54*number)+" seconds or "+Math.round(26.54*number/60)+" minutes or "+Math.round(26.54*number/3600)+" hours\n"
-			desc+="Time to refine with 10 refineries: "+Math.round(2.654*number)+" seconds or "+Math.round(2.654*number/60)+" minutes or "+Math.round(2.654*number/3600)+" hours"
-			if(number!=null){
-				let embed = new Discord.MessageEmbed()
-					.setTitle("Resources needed to make "+commandArgs[0]+" common tech with full yield elite refineries")
-					.setDescription(desc);
-				message.channel.send(embed)
-			}
-		}else if (command === 'rare') {
-			let number=parseInt(commandArgs[0])
-			var desc=""
-			desc+="Iron ingots: "+Math.round(5*90*number)+"\n"
-			desc+="Silicon wafers: "+Math.round(5*80*number)+"\n"
-			desc+="Cobalt ingots: "+Math.round(5*32*number)+"\n"
-			desc+="Silver ingots: "+Math.round(5*24*number)+"\n"
-			desc+="Gold ingots: "+Math.round(5*16*number)+"\n"
-			desc+="Uranium ingots: "+Math.round(10*number)+"\n\n"
-
-			desc+="Iron ore: "+Math.round(5*90*number/1.7)+"\n"
-			desc+="Silicon ore: "+Math.round(5*80*number/1.7)+"\n"
-			desc+="Cobalt ore: "+Math.round(5*32*number/0.72)+"\n"
-			desc+="Silver ore: "+Math.round(5*24*number/0.24)+"\n"
-			desc+="Gold ore: "+Math.round(5*16*number/0.024)+"\n"
-			desc+="Uranium ore:  "+Math.round(10*number/0.024)+"\n\n"
-
-			desc+="Time to refine with 1 refinery: "+Math.round(216*number)+" seconds or "+Math.round(216*number/60)+" minutes or "+Math.round(216*number/3600)+" hours\n"
-			desc+="Time to refine with 10 refineries: "+Math.round(21.6*number)+" seconds or "+Math.round(21.6*number/60)+" minutes or "+Math.round(21.6*number/3600)+" hours"
-			if(number!=null){
-				let embed = new Discord.MessageEmbed()
-					.setTitle("Resources needed to make "+commandArgs[0]+" rare tech with full yield elite refineries")
-					.setDescription(desc);
-				message.channel.send(embed)
-			}
-		}else if (command === 'exotic') {
-			let number=parseInt(commandArgs[0])
-			var desc=""
-			desc+="Iron ingots: "+Math.round(25*90*number)+" ("+Math.round(25*90*number/10000)/100+" mil)"+"\n"
-			desc+="Silicon wafers: "+Math.round(25*80*number)+" ("+Math.round(25*80*number/10000)/100+" mil)"+"\n"
-			desc+="Cobalt ingots: "+Math.round(25*32*number)+" ("+Math.round(25*32*number/10000)/100+" mil)"+"\n"
-			desc+="Silver ingots: "+Math.round(25*24*number)+" ("+Math.round(25*24*number/10000)/100+" mil)"+"\n"
-			desc+="Gold ingots: "+Math.round(25*16*number)+" ("+Math.round(25*16*number/10000)/100+" mil)"+"\n"
-			desc+="Uranium ingots: "+Math.round(5*10*number)+" ("+Math.round(5*10*number/10000)/100+" mil)"+"\n"
-			desc+="Platinum ingots: "+Math.round(10*number)+" ("+Math.round(10*number/10000)/100+" mil)"+"\n\n"
-
-			desc+="Iron ore: "+Math.round(25*90*number/1.7)+" ("+Math.round(25*90*number/1.7/10000)/100+" mil)"+"\n"
-			desc+="Silicon ore: "+Math.round(25*80*number/1.7)+" ("+Math.round(25*80*number/1.7/10000)/100+" mil)"+"\n"
-			desc+="Cobalt ore: "+Math.round(25*32*number/0.72)+" ("+Math.round(25*32*number/0.72/10000)/100+" mil)"+"\n"
-			desc+="Silver ore: "+Math.round(25*24*number/0.24)+" ("+Math.round(25*24*number/0.24/10000)/100+" mil)"+"\n"
-			desc+="Gold ore: "+Math.round(25*16*number/0.024)+" ("+Math.round(25*16*number/0.024/10000)/100+" mil)"+"\n"
-			desc+="Uranium ore:  "+Math.round(5*10*number/0.024)+" ("+Math.round(5*10*number/0.024/10000)/100+" mil)"+"\n"
-			desc+="Platinum ore:  "+Math.round(10*number/0.012)+" ("+Math.round(10*number/0.012/10000)/100+" mil)"+"\n\n"
-
-			desc+="Time to refine with 1 refinery: "+Math.round(1205*number)+" seconds or "+Math.round(1205*number/60)+" minutes or "+Math.round(1205*number/3600)+" hours\n"
-			desc+="Time to refine with 10 refineries: "+Math.round(120.5*number)+" seconds or "+Math.round(120.5*number/60)+" minutes or "+Math.round(120.5*number/3600)+" hours"
-			if(number!=null){
-				let embed = new Discord.MessageEmbed()
-					.setTitle("Resources needed to make "+commandArgs[0]+" exotic tech with full yield elite refineries")
-					.setDescription(desc);
-				message.channel.send(embed)
-			}
-		}*/
 		}
 	}
 });
