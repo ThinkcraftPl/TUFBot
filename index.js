@@ -335,16 +335,17 @@ client.on('message', async message => {
 
 				default:
 					const avoptions = ["iron_weight","silicon_weight","nickel_weight","cobalt_weight","silver_weight","gold_weight","uranium_weight","platinum_weight","magnesium_weight","gravel_weight","outputtype"]
-					const useroptions = await UserOpt.findOne({where: {userid: message.author.id}})
+					let useroptions = await UserOpt.findOne({where: {userid: message.author.id}})
 					if(useroptions==null)
 					{
 						try{
-							const useroptions = await UserOpt.create({
+							const useropt = await UserOpt.create({
 								userid: message.author.id
 							});
 						}catch(e){
 							console.log(e)
 						}
+						useroptions = await UserOpt.findOne({where: {userid: message.author.id}})
 					}
 					let embed = new Discord.MessageEmbed()
 						.setTitle(message.author.username+" options")
