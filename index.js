@@ -4,6 +4,7 @@ const Sequelize = require('sequelize');
 const { debuglog } = require('util');
 const { QueryTypes } = require('sequelize');
 const credentials = require('./credentials.json');
+const { cpuUsage } = require('process');
 
 const client = new Discord.Client();
 const PREFIX = 'tuf!';
@@ -88,6 +89,59 @@ const UserOpt = sequelize.define('UserOpt',{
 	outputtype:{type: Sequelize.BOOLEAN,default: 0,allowNull: false}
 });
 UserOpt.sync({alter: true});
+const Compared = sequelize.define('Compared',{
+	name1: {
+		type: Sequelize.STRING,
+		allowNull:false
+	},
+	name2: {
+		type: Sequelize.STRING,
+		allowNull:false
+	},
+	times: {
+		type: Sequelize.INTEGER
+	}
+})
+Compared.sync({alter: true});
+const ServerOpt = sequelize.define('ServerOpt',{
+	serverid:{
+		type: Sequelize.BIGINT,
+		allowNull:false,
+		unique:true
+	},
+	bot_channel:{
+		type: Sequelize.BIGINT
+	},
+	prefix: {
+		type: Sequelize.STRING,
+		default: 'tuf!'
+	},
+})
+ServerOpt.sync({alter: true});
+const ErrorReport = sequelize.define('ErrorReport',{
+	userid: Sequelize.BIGINT,
+	username: Sequelize.STRING,
+	issue: Sequelize.TEXT,
+	sentToLog: Sequelize.BOOLEAN,
+	date: {
+		type: Sequelize.DATE,
+		default: Sequelize.NOW
+	}
+})
+ErrorReport.sync({alter: true});
+const CommandLog = sequelize.define('CommandLog', {
+	userid: Sequelize.BIGINT,
+	serverid: Sequelize.BIGINT,
+	username: Sequelize.BIGINT,
+	servername: Sequelize.BIGINT,
+	sentToLog: Sequelize.BOOLEAN,
+	message: Sequelize.TEXT,
+	date: {
+		type: Sequelize.DATE,
+		default: Sequelize.NOW
+	}
+})
+CommandLog.sync({alter: true});
 function floatOutput(input,type){
 	let output=""
 	if(type){
@@ -187,8 +241,71 @@ async function resourceWeight(comp, useroptions){
 	}
 	return resourceweight;
 }
+async function addToCompared(name1,name2){
+	Compared.findOne({where:{name1:name1,name2:name2}})
+	if(Compared!=null){
+		await Compared.update({times: Compared.times+1,where:{name1:name1,name2:name2}})
+	}else{
+		await Compared.create({
+			name1:name1,
+			name2:name2,
+			times:1
+		});
+	}
+}
 client.on('message', async message => {
-	if (message.content.startsWith(PREFIX)) {
+	if(message.channel.id===845911309614186496){
+		if(message.content.startsWith(PREFIX)){
+			if (command === 'addcomp'){
+				{
+				try {
+					const comp = await Component.create({
+						name: commandArgs[0],
+						iron: parseFloat(commandArgs[1]),
+						silicon: parseFloat(commandArgs[2]),
+						nickel: parseFloat(commandArgs[3]),
+						cobalt: parseFloat(commandArgs[4]),
+						silver: parseFloat(commandArgs[5]),
+						gold: parseFloat(commandArgs[6]),
+						uranium: parseFloat(commandArgs[7]),
+						platinum: parseFloat(commandArgs[8]),
+						magnesium: parseFloat(commandArgs[9]),
+						tech2x: parseFloat(commandArgs[10]),
+						tech4x: parseFloat(commandArgs[11]),
+						tech8x: parseFloat(commandArgs[12]),
+						assembletime: parseFloat(commandArgs[13]),
+					});
+				}
+				catch (e) {
+					console.log(e)
+					message.reply("there was an error");
+				}
+				}
+			}else if(command === 'addore'){
+				{
+				try {
+					const ore = await Ore.create({
+						name: commandArgs[0],
+						yield_elite_4xyield: parseFloat(commandArgs[1]),
+						speed_elite_4xyield: parseFloat(commandArgs[2])
+					});
+				}
+				catch (e) {
+					console.log(e)
+					message.reply("there was an error");
+				}
+				}
+			}else if(command === 'comparelist'){
+				const compa = Compared.findAll();
+				let embed = new Discord.MessageEmbed()
+					.setTitle("I know of this component comparasons:")
+					.setDescription(compa.map(t => t.name1+' '+t.name2+' '+t.times).join('\n') || 'No components compared yet.')
+					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+					.setFooter("If you see this and you don't know why, report an error");
+			}
+		}
+	}
+	else if (message.content.startsWith(PREFIX)) {
 		const input = message.content.slice(PREFIX.length).trim().split(' ');
 		const command = input.shift();
 		const commandArgs = input.join(' ').split(' ');
@@ -215,34 +332,7 @@ client.on('message', async message => {
 			}
 			useroptions = await UserOpt.findOne({where: {userid: message.author.id}})
 		}
-		if (command === 'addcomp'){
-			if(message.author.id==404361385863282688){
-				try {
-					const comp = await Component.create({
-						name: commandArgs[0],
-						iron: parseFloat(commandArgs[1]),
-						silicon: parseFloat(commandArgs[2]),
-						nickel: parseFloat(commandArgs[3]),
-						cobalt: parseFloat(commandArgs[4]),
-						silver: parseFloat(commandArgs[5]),
-						gold: parseFloat(commandArgs[6]),
-						uranium: parseFloat(commandArgs[7]),
-						platinum: parseFloat(commandArgs[8]),
-						magnesium: parseFloat(commandArgs[9]),
-						tech2x: parseFloat(commandArgs[10]),
-						tech4x: parseFloat(commandArgs[11]),
-						tech8x: parseFloat(commandArgs[12]),
-						assembletime: parseFloat(commandArgs[13]),
-					});
-				}
-				catch (e) {
-					console.log(e)
-					message.reply("there was an error");
-				}
-			}else{
-				message.reply("You have not enough permissions to perform this command");
-			}
-		}else if(command === 'complist')
+		if(command === 'complist')
 		{
 			const comps = await Component.findAll();
 			var desc="Name | Fe | Si | Ni | Co | Ag | Au | Ur | Pl | Mg | Gravel | 2x | 4x | 8x | assembletime\n";
@@ -255,22 +345,6 @@ client.on('message', async message => {
 				.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
 				.setFooter('Assemble time using elite assembler with 4 speed modules and time measured by timer on phone');
 			message.channel.send(embed);
-		}else if(command === 'addore'){
-			if(message.author.id==404361385863282688){
-				try {
-					const ore = await Ore.create({
-						name: commandArgs[0],
-						yield_elite_4xyield: parseFloat(commandArgs[1]),
-						speed_elite_4xyield: parseFloat(commandArgs[2])
-					});
-				}
-				catch (e) {
-					console.log(e)
-					message.reply("there was an error");
-				}
-			}else{
-				message.reply("You have not enough permissions to perform this command");
-			}
 		}else if(command === 'orelist'){
 			const ores = await Ore.findAll();
 			var desc="Name | Yield Elite 4xYield | Speed Elite 4xYield\n";
@@ -374,6 +448,7 @@ client.on('message', async message => {
 			{
 				message.reply("At least one of compared items does not exist in the database, or number specified is not a number")
 			}else{
+				addToCompared(name1,name2)
 				let embed = new Discord.MessageEmbed()
 						.setTitle("Comparison between "+name1+" and "+name2)
 						.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
@@ -441,6 +516,7 @@ client.on('message', async message => {
 			}
 		}
 	}
+	
 });
 
 client.login(credentials.bot_token);
