@@ -256,6 +256,9 @@ async function addToCompared(name1,name2){
 client.on('message', async message => {
 	if(message.channel.id==845911309614186496){
 		if(message.content.startsWith(PREFIX)){
+			const input = message.content.slice(PREFIX.length).trim().split(' ');
+			const command = input.shift();
+			const commandArgs = input.join(' ').split(' ');
 			if (command === 'addcomp'){
 				{
 				try {
