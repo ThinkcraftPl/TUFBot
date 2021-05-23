@@ -244,7 +244,7 @@ async function resourceWeight(comp, useroptions){
 async function addToCompared(name1,name2){
 	Compared.findOne({where:{name1:name1,name2:name2}})
 	if(Compared!=null){
-		await Compared.update({times: Compared.times+1,where:{name1:name1,name2:name2}})
+		await Compared.update({name1:name1, name2:name2, times: Compared.times+1},{where:{name1:name1,name2:name2}})
 	}else{
 		await Compared.create({
 			name1:name1,
