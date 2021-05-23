@@ -606,15 +606,16 @@ client.on('message', async message => {
 				message.reply("Report sent")
 			}else if(command === 'help'){
 				let embed = new Discord.MessageEmbed()
-						.setTitle("Ambulance is on the way, but i got here first!")
-						.setDescription("<argument> (optional_argument)")
-						.addField('`'+PREFIX+'complist`','Shows a available component list')
-						.addField('`'+PREFIX+'compinfo <comp_name> (amount)`','Shows info about specified component')
-						.addField('`'+PREFIX+'compare <comp1_name> <amount> <comp2_name>`','Compares 2 components')
-						.addField('`'+PREFIX+'useropt (opt_name) (opt_value)`','Shows available personal options')
-						.addField('`'+PREFIX+'serveropt (opt_name) (opt_value)`','Shows available server options')
-						.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
-						.setFooter('Get available commands with `'+PREFIX+'help`');
+					.setTitle("Ambulance is on the way, but i got here first!")
+					.setDescription("<argument> (optional_argument)")
+					.addField('`'+PREFIX+'complist`','Shows a available component list')
+					.addField('`'+PREFIX+'compinfo <comp_name> (amount)`','Shows info about specified component')
+					.addField('`'+PREFIX+'compare <comp1_name> <amount> <comp2_name>`','Compares 2 components')
+					.addField('`'+PREFIX+'useropt (opt_name) (opt_value)`','Shows available personal options')
+					.addField('`'+PREFIX+'serveropt (opt_name) (opt_value)`','Shows available server options')
+					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+					.setFooter('Get available commands with `'+PREFIX+'help`');
+				console.log(embed)
 			}else if(command === 'serveropt'){
 				const avoptions = ["bot_channel","prefix"]
 				let x;
