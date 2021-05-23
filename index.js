@@ -299,7 +299,7 @@ client.on('message', async message => {
 				}
 				}
 			}else if(command === 'comparelist'){
-				const compa = Compared.findAll();
+				let compa = await Compared.findAll();
 				let embed = new Discord.MessageEmbed()
 					.setTitle("I know of this component comparasons:")
 					.setDescription(compa.map(t => t.name1+' '+t.name2+' '+t.times).join('\n') || 'No components compared yet.')
