@@ -613,6 +613,7 @@ client.on('message', async message => {
 					.addField('`'+PREFIX+'compare <comp1_name> <amount> <comp2_name>`','Compares 2 components')
 					.addField('`'+PREFIX+'useropt (opt_name) (opt_value)`','Shows available personal options')
 					.addField('`'+PREFIX+'serveropt (opt_name) (opt_value)`','Shows available server options')
+					.addField('`'+PREFIX+'report <issue>`','Reports an issue')
 					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
 					.setFooter('Get available commands with `'+PREFIX+'help`');
 				message.channel.send(embed)
