@@ -615,7 +615,7 @@ client.on('message', async message => {
 					.addField('`'+PREFIX+'serveropt (opt_name) (opt_value)`','Shows available server options')
 					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
 					.setFooter('Get available commands with `'+PREFIX+'help`');
-				console.log(embed)
+				message.channel.send(embed)
 			}else if(command === 'serveropt'){
 				const avoptions = ["bot_channel","prefix"]
 				let x;
