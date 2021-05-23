@@ -254,7 +254,7 @@ async function addToCompared(name1,name2){
 	}
 }
 client.on('message', async message => {
-	if(message.channel.id===845911309614186496){
+	if(message.channel.id==845911309614186496){
 		if(message.content.startsWith(PREFIX)){
 			if (command === 'addcomp'){
 				{
