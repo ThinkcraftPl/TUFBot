@@ -302,6 +302,7 @@ client.on('message', async message => {
 					.setDescription(compa.map(t => t.name1+' '+t.name2+' '+t.times).join('\n') || 'No components compared yet.')
 					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
 					.setFooter("If you see this and you don't know why, report an error");
+				message.channel.send(embed)
 			}
 		}
 	}
