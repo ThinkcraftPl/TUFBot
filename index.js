@@ -295,10 +295,7 @@ async function updateCommandLog(){
 	}
 }
 client.on('guildCreate', async guild =>{
-	const channel = guild.channels.cache
-	.filter((ch) =>{ return ch.manageable && ch.type === 'text' })
-	.first();
-	channel.send("Hello!\nThis is first available channel i can access. To change my channel for this server, change prefix or any other server setting, see tuf!serveropt.\n`");
+	console.log("new server")
 });
 client.on('message', async message => {
 	let serveroptions = await ServerOpt.findOne({where: {serverid: message.guild.id}})
@@ -633,7 +630,8 @@ client.on('message', async message => {
 							embed.addField('prefix: '+serveroptions.prefix,'Prefix bot will respond to')
 						}
 					})
-					message.channel.send(embed)	
+					message.channel.send(embed)
+					message.channel.send("Disclaimer:`Every message starting with server prefix, or any message that pings this bot is recorded and saved in the database for debugging purposes. If you do not agree, do not use the bot. If you have any questions join WWI discord and ask any questions.")
 				}else if(message.member.hasPermission("ADMINISTRATOR")){
 					let newvalue;
 					if(commandArgs[0]=="bot_channel")
@@ -656,7 +654,7 @@ client.on('message', async message => {
 					else if(column=="prefix") 			await ServerOpt.update({ prefix: newvalue }, 		{where: {serverid: message.guild.id}});
 					message.reply("Option "+column+" changed to "+newvalue+".")
 				}
-				"Disclaimer:`Every message starting with server prefix, or any message that pings this bot is recorded and saved in the database for debugging purposes. If you do not agree, do not use the bot. If you have any questions join WWI discord and ask any questions."
+				
 			}
 		}
 	}else{
