@@ -60,23 +60,7 @@ const Component = sequelize.define('Component', {
 	tech4x: Sequelize.FLOAT,
 	tech8x: Sequelize.FLOAT,
 	assembletime: Sequelize.FLOAT,
-}, {indexes:[
-	{unique:true, fields: ['name']},
-	{unique:true, fields: ['iron']},
-	{unique:true, fields: ['silicon']},
-	{unique:true, fields: ['nickel']},
-	{unique:true, fields: ['cobalt']},
-	{unique:true, fields: ['silver']},
-	{unique:true, fields: ['gold']},
-	{unique:true, fields: ['uranium']},
-	{unique:true, fields: ['platinum']},
-	{unique:true, fields: ['magnesium']},
-	{unique:true, fields: ['gravel']},
-	{unique:true, fields: ['tech2x']},
-	{unique:true, fields: ['tech4x']},
-	{unique:true, fields: ['tech8x']},
-	{unique:true, fields: ['assembletime']}
-]});
+});
 const Ore = sequelize.define('Ore', {
 	name: {
 		type: Sequelize.STRING,
@@ -85,11 +69,7 @@ const Ore = sequelize.define('Ore', {
 	},
 	yield_elite_4xyield: Sequelize.FLOAT,
 	speed_elite_4xyield: Sequelize.FLOAT,
-}, {indexes:[
-	{unique:true, fields: ['name']},
-	{unique:true, fields: ['yield_elite_4xyield']},
-	{unique:true, fields: ['speed_elite_4xyield']},
-]});
+});
 const UserOpt = sequelize.define('UserOpt',{
 	userid:{
 		type: Sequelize.BIGINT,
@@ -107,20 +87,7 @@ const UserOpt = sequelize.define('UserOpt',{
 	magnesium_weight:{type: Sequelize.FLOAT,default: 1,allowNull: false},
 	gravel_weight:{type: Sequelize.FLOAT,default: 1,allowNull: false},
 	outputtype:{type: Sequelize.BOOLEAN,default: 0,allowNull: false}
-}, {indexes:[
-	{unique:true, fields: ['userid']},
-	{unique:true, fields: ['iron_weight']},
-	{unique:true, fields: ['silicon_weight']},
-	{unique:true, fields: ['nickel_weight']},
-	{unique:true, fields: ['cobalt_weight']},
-	{unique:true, fields: ['silver_weight']},
-	{unique:true, fields: ['gold_weight']},
-	{unique:true, fields: ['uranium_weight']},
-	{unique:true, fields: ['platinum_weight']},
-	{unique:true, fields: ['magnesium_weight']},
-	{unique:true, fields: ['gravel_weight']},
-	{unique:true, fields: ['outputtype']}
-]});
+});
 const Compared = sequelize.define('Compared',{
 	name1: {
 		type: Sequelize.STRING,
@@ -133,11 +100,7 @@ const Compared = sequelize.define('Compared',{
 	times: {
 		type: Sequelize.INTEGER
 	}
-}, {indexes:[
-	{unique:true, fields: ['name1']},
-	{unique:true, fields: ['name2']},
-	{unique:true, fields: ['times']}
-]})
+})
 const ServerOpt = sequelize.define('ServerOpt',{
 	serverid:{
 		type: Sequelize.BIGINT,
@@ -151,11 +114,7 @@ const ServerOpt = sequelize.define('ServerOpt',{
 		type: Sequelize.STRING,
 		defaultValue: 'tuf!'
 	},
-}, {indexes:[
-	{unique:true, fields: ['serverid']},
-	{unique:true, fields: ['bot_channel']},
-	{unique:true, fields: ['prefix']},
-]})
+})
 const ErrorReport = sequelize.define('ErrorReport',{
 	userid: Sequelize.BIGINT,
 	username: Sequelize.STRING,
@@ -165,13 +124,7 @@ const ErrorReport = sequelize.define('ErrorReport',{
 		type: Sequelize.DATE,
 		defaultValue: Sequelize.NOW
 	}
-}, {indexes:[
-	{unique:true, fields: ['userid']},
-	{unique:true, fields: ['username']},
-	{unique:true, fields: ['issue']},
-	{unique:true, fields: ['sentToLog']},
-	{unique:true, fields: ['date']},
-]})
+})
 const CommandLog = sequelize.define('CommandLog', {
 	userid: Sequelize.BIGINT,
 	serverid: Sequelize.BIGINT,
@@ -183,15 +136,7 @@ const CommandLog = sequelize.define('CommandLog', {
 		type: Sequelize.DATE,
 		defaultValue: Sequelize.NOW
 	}
-}, {indexes:[
-	{unique:true, fields: ['userid']},
-	{unique:true, fields: ['username']},
-	{unique:true, fields: ['serverid']},
-	{unique:true, fields: ['servername']},
-	{unique:true, fields: ['message']},
-	{unique:true, fields: ['sentToLog']},
-	{unique:true, fields: ['date']},
-]})
+})
 async function getInt(str){
 	return parseInt(await getFloat(str))
 }
