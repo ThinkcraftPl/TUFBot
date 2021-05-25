@@ -6,12 +6,13 @@ const { QueryTypes } = require('sequelize');
 const credentials = require('./credentials.json');
 const config = require('./config.json');
 const { cpuUsage } = require('process');
+const { pathToFileURL } = require('url');
 
 const client = new Discord.Client();
 
 client.once('ready', () => {
 	console.log("Started")
-	client.user.setActivity("Ping me!")
+	client.user.setActivity("Ping me! I am curently on "+client.guilds.cache.length)
 });
 
 var sequelize = new Sequelize(
@@ -59,8 +60,23 @@ const Component = sequelize.define('Component', {
 	tech4x: Sequelize.FLOAT,
 	tech8x: Sequelize.FLOAT,
 	assembletime: Sequelize.FLOAT,
-});
-Component.sync({ alter: true });
+}, {indexes:[
+	{unique:true, fields: ['name']},
+	{unique:true, fields: ['iron']},
+	{unique:true, fields: ['silicon']},
+	{unique:true, fields: ['nickel']},
+	{unique:true, fields: ['cobalt']},
+	{unique:true, fields: ['silver']},
+	{unique:true, fields: ['gold']},
+	{unique:true, fields: ['uranium']},
+	{unique:true, fields: ['platinum']},
+	{unique:true, fields: ['magnesium']},
+	{unique:true, fields: ['gravel']},
+	{unique:true, fields: ['tech2x']},
+	{unique:true, fields: ['tech4x']},
+	{unique:true, fields: ['tech8x']},
+	{unique:true, fields: ['assembletime']}
+]});
 const Ore = sequelize.define('Ore', {
 	name: {
 		type: Sequelize.STRING,
@@ -69,8 +85,11 @@ const Ore = sequelize.define('Ore', {
 	},
 	yield_elite_4xyield: Sequelize.FLOAT,
 	speed_elite_4xyield: Sequelize.FLOAT,
-});
-Ore.sync({ alter: true });
+}, {indexes:[
+	{unique:true, fields: ['name']},
+	{unique:true, fields: ['yield_elite_4xyield']},
+	{unique:true, fields: ['speed_elite_4xyield']},
+]});
 const UserOpt = sequelize.define('UserOpt',{
 	userid:{
 		type: Sequelize.BIGINT,
@@ -88,8 +107,20 @@ const UserOpt = sequelize.define('UserOpt',{
 	magnesium_weight:{type: Sequelize.FLOAT,default: 1,allowNull: false},
 	gravel_weight:{type: Sequelize.FLOAT,default: 1,allowNull: false},
 	outputtype:{type: Sequelize.BOOLEAN,default: 0,allowNull: false}
-});
-UserOpt.sync({alter: true});
+}, {indexes:[
+	{unique:true, fields: ['userid']},
+	{unique:true, fields: ['iron_weight']},
+	{unique:true, fields: ['silicon_weight']},
+	{unique:true, fields: ['nickel_weight']},
+	{unique:true, fields: ['cobalt_weight']},
+	{unique:true, fields: ['silver_weight']},
+	{unique:true, fields: ['gold_weight']},
+	{unique:true, fields: ['uranium_weight']},
+	{unique:true, fields: ['platinum_weight']},
+	{unique:true, fields: ['magnesium_weight']},
+	{unique:true, fields: ['gravel_weight']},
+	{unique:true, fields: ['outputtype']}
+]});
 const Compared = sequelize.define('Compared',{
 	name1: {
 		type: Sequelize.STRING,
@@ -102,8 +133,11 @@ const Compared = sequelize.define('Compared',{
 	times: {
 		type: Sequelize.INTEGER
 	}
-})
-Compared.sync({alter: true});
+}, {indexes:[
+	{unique:true, fields: ['name1']},
+	{unique:true, fields: ['name2']},
+	{unique:true, fields: ['times']}
+]})
 const ServerOpt = sequelize.define('ServerOpt',{
 	serverid:{
 		type: Sequelize.BIGINT,
@@ -117,8 +151,11 @@ const ServerOpt = sequelize.define('ServerOpt',{
 		type: Sequelize.STRING,
 		defaultValue: 'tuf!'
 	},
-})
-ServerOpt.sync({alter: true});
+}, {indexes:[
+	{unique:true, fields: ['serverid']},
+	{unique:true, fields: ['bot_channel']},
+	{unique:true, fields: ['prefix']},
+]})
 const ErrorReport = sequelize.define('ErrorReport',{
 	userid: Sequelize.BIGINT,
 	username: Sequelize.STRING,
@@ -128,8 +165,13 @@ const ErrorReport = sequelize.define('ErrorReport',{
 		type: Sequelize.DATE,
 		defaultValue: Sequelize.NOW
 	}
-})
-ErrorReport.sync({alter: true});
+}, {indexes:[
+	{unique:true, fields: ['userid']},
+	{unique:true, fields: ['username']},
+	{unique:true, fields: ['issue']},
+	{unique:true, fields: ['sentToLog']},
+	{unique:true, fields: ['date']},
+]})
 const CommandLog = sequelize.define('CommandLog', {
 	userid: Sequelize.BIGINT,
 	serverid: Sequelize.BIGINT,
@@ -141,8 +183,49 @@ const CommandLog = sequelize.define('CommandLog', {
 		type: Sequelize.DATE,
 		defaultValue: Sequelize.NOW
 	}
-})
-CommandLog.sync({alter: true});
+}, {indexes:[
+	{unique:true, fields: ['userid']},
+	{unique:true, fields: ['username']},
+	{unique:true, fields: ['serverid']},
+	{unique:true, fields: ['servername']},
+	{unique:true, fields: ['message']},
+	{unique:true, fields: ['sentToLog']},
+	{unique:true, fields: ['date']},
+]})
+async function getInt(str){
+	return parseInt(await getFloat(str))
+}
+async function getFloat(str){
+	str=''+str
+	str=str.split(',').join('')
+	if(str.endsWith('k')){
+		str=str.substring(0,str.length-1)
+		num = parseFloat(str)
+		if(isNaN(num))
+		return num;
+		else
+		return parseFloat(num*1000);
+	}else if(str.endsWith('m')){
+		str=str.substring(0,str.length-1)
+		num = parseFloat(str)
+		if(isNaN(num)){
+			return num;
+		}
+		else{
+			return parseFloat(num*1000000);
+		}
+	}else if(str.endsWith('mil')){
+		str=str.substring(0,str.length-3)
+		num = parseFloat(str)
+		if(isNaN(num))
+			return num;
+		else
+			return parseFloat(num*1000000);
+	}else{
+		num = parseFloat(str)
+		return num;
+	}
+}
 function floatOutput(input,type){
 	let output=""
 	if(type){
@@ -294,8 +377,10 @@ async function updateCommandLog(){
 		console.log(e)
 	}
 }
+sequelize.sync({alter: false, force: false});
 client.on('guildCreate', async guild =>{
 	console.log("new server")
+	client.user.setActivity("Ping me! I am curently on "+client.guilds.cache.length)
 });
 client.on('message', async message => {
 	let serveroptions = await ServerOpt.findOne({where: {serverid: message.guild.id}})
@@ -312,6 +397,7 @@ client.on('message', async message => {
 			}
 			serveroptions = await ServerOpt.findOne({where: {serverid: message.guild.id}})
 		}
+	//const PREFIX = 't!'
 	const PREFIX = serveroptions.prefix;
 	if (message.content.startsWith(PREFIX)) {
 		{
@@ -442,7 +528,7 @@ client.on('message', async message => {
 					message.reply("There is no such component! To see list of components run `"+PREFIX+"complist`!")
 				}else
 				{
-					let compamount=parseInt(commandArgs[1])
+					let compamount=await getInt(commandArgs[1])
 					if(isNaN(compamount))
 						compamount=1
 					const ores = await Ore.findAll();
@@ -519,7 +605,7 @@ client.on('message', async message => {
 					retime2=refinerytime
 					weight2=await resourceWeight(comp2,useroptions)
 				}
-				comparednumber=parseInt(commandArgs[1])
+				comparednumber=await getInt(commandArgs[1])
 				if(isNaN(comparednumber))
 					error=true;
 				if(error)
@@ -572,10 +658,10 @@ client.on('message', async message => {
 						else
 							newvalue=false;
 					}else{
-						if(isNaN(parseFloat(commandArgs[1]))){
+						if(isNaN(await getFloat(commandArgs[1]))){
 							newvalue=1;
 						}else{
-							newvalue=parseFloat(commandArgs[1])
+							newvalue=await getFloat(commandArgs[1])
 						}
 					}
 					let column=commandArgs[0]
@@ -655,6 +741,24 @@ client.on('message', async message => {
 					message.reply("Option "+column+" changed to "+newvalue+".")
 				}
 				
+			}else if(command === 'oreinfo'){
+				const ore = await Ore.findOne({where: {name:commandArgs[0]}});
+				if(ore==null)
+				{
+					message.reply("There is no such ore! To see list of ores run `"+PREFIX+"orelist`!")
+				}else
+				{
+					let oreamount=await getInt(commandArgs[1])
+					if(isNaN(oreamount))
+						oreamount=1
+					let embed = new Discord.MessageEmbed()
+						.setTitle(floatOutput(oreamount)+' of '+ore.name)
+						.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+						.setFooter('To change option type '+PREFIX+'useropt `option_code` `new value`');
+					embed.addField('Time to refine '+' with 1 elite refinery with 4 yield modules',timeOutput(oreamount*ore.yield_elite_4xyield/ore.speed_elite_4xyield))
+					embed.addField('Ingots from refining '+' with 1 elite refinery with 4 yield modules',floatOutput(oreamount*ore.yield_elite_4xyield))
+					message.channel.send(embed)
+				}
 			}
 		}
 	}else{
@@ -677,6 +781,7 @@ client.on('message', async message => {
 					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
 					.setFooter('Get available commands with `'+PREFIX+'help`');
 				message.channel.send(embed);
+
 			}
 		}
 	}
