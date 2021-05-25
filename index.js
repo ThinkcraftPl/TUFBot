@@ -377,6 +377,7 @@ async function updateCommandLog(){
 		console.log(e)
 	}
 }
+//1=1
 sequelize.sync({alter: false, force: false});
 client.on('guildCreate', async guild =>{
 	console.log("new server")
