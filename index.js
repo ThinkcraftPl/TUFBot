@@ -52,10 +52,7 @@ const Component = sequelize.define('Component', {
 	uranium: Sequelize.FLOAT,
 	platinum: Sequelize.FLOAT,
 	magnesium: Sequelize.FLOAT,
-	gravel:{
-		type: Sequelize.FLOAT,
-		default: 0
-	},
+	gravel:	Sequelize.FLOAT,
 	tech2x: Sequelize.FLOAT,
 	tech4x: Sequelize.FLOAT,
 	tech8x: Sequelize.FLOAT,
@@ -365,10 +362,11 @@ client.on('message', async message => {
 							uranium: parseFloat(commandArgs[7]),
 							platinum: parseFloat(commandArgs[8]),
 							magnesium: parseFloat(commandArgs[9]),
-							tech2x: parseFloat(commandArgs[10]),
-							tech4x: parseFloat(commandArgs[11]),
-							tech8x: parseFloat(commandArgs[12]),
-							assembletime: parseFloat(commandArgs[13]),
+							gravel: parseFloat(commandArgs[10]),
+							tech2x: parseFloat(commandArgs[11]),
+							tech4x: parseFloat(commandArgs[12]),
+							tech8x: parseFloat(commandArgs[13]),
+							assembletime: parseFloat(commandArgs[14]),
 						});
 					}
 					catch (e) {
@@ -698,7 +696,7 @@ client.on('message', async message => {
 					if(isNaN(oreamount))
 						oreamount=1
 					let embed = new Discord.MessageEmbed()
-						.setTitle(floatOutput(oreamount)+' of '+ore.name)
+						.setTitle(floatOutput(oreamount)+' of '+ore.name+' ore')
 						.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
 						.setFooter('To change option type '+PREFIX+'useropt `option_code` `new value`');
 					embed.addField('Time to refine '+' with 1 elite refinery with 4 yield modules',timeOutput(oreamount*ore.yield_elite_4xyield/ore.speed_elite_4xyield))
