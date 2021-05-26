@@ -663,7 +663,7 @@ client.on('message', async message => {
 						}
 					})
 					message.channel.send(embed)
-					message.channel.send("Disclaimer:`Every message starting with server prefix, or any message that pings this bot is recorded and saved in the database for debugging purposes. If you do not agree, do not use the bot. If you have any questions join WWI discord and ask any questions.")
+					message.channel.send("Disclaimer:`Every message starting with server prefix, or any message that pings this bot is recorded and saved in the database for debugging purposes. If you do not agree, do not use the bot. If you have any questions join WWI discord and ask any questions.`")
 				}else if(message.member.hasPermission("ADMINISTRATOR")){
 					let newvalue;
 					if(commandArgs[0]=="bot_channel")
