@@ -636,10 +636,12 @@ client.on('message', async message => {
 					.setTitle("Ambulance is on the way, but i got here first!")
 					.setDescription("<argument> (optional_argument)")
 					.addField('`'+PREFIX+'complist`','Shows a available component list')
+					.addField('`'+PREFIX+'orelist`','Shows a available ore list')
 					.addField('`'+PREFIX+'compinfo <comp_name> (amount)`','Shows info about specified component')
+					.addField('`'+PREFIX+'oreinfo <ore_name> (amount)`','Shows info about specified ore')
 					.addField('`'+PREFIX+'compare <comp1_name> <amount> <comp2_name>`','Compares 2 components')
 					.addField('`'+PREFIX+'useropt (opt_name) (opt_value)`','Shows available personal options')
-					.addField('`'+PREFIX+'serveropt (opt_name) (opt_value)`','Shows available server options')
+					.addField('`'+PREFIX+'serveropt (opt_name) (opt_value)`','Shows available server options. You need to have admin permissions')
 					.addField('`'+PREFIX+'report <issue>`','Reports an issue')
 					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
 					.setFooter('Get available commands with `'+PREFIX+'help`');
