@@ -244,7 +244,7 @@ client.once('ready', async () => {
 			]
 		}
 	]
-	const commands = await client.guilds.cache.get('711222589313253439')?.commands.set(data)
+	const commands = await client.guilds.cache.get('859874058065543179')?.commands.set(data)
 });
 
 var sequelize = new Sequelize(
