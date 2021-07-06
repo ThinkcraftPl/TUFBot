@@ -1017,7 +1017,7 @@ client.on('message', async message => {
 });
 client.on('interaction', async interaction => {
 	if (!interaction.isCommand()) return;
-	/*/
+	//*/
 	await CommandLog.create({
 		userid: interaction.user.id,
 		username: interaction.user.username,
