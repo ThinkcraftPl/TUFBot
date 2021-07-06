@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { or, InvalidConnectionError } = require('sequelize');
+const { or, InvalidConnectionError, STRING } = require('sequelize');
 const Sequelize = require('sequelize');
 const { debuglog } = require('util');
 const { QueryTypes } = require('sequelize');
@@ -8,11 +8,243 @@ const config = require('./config.json');
 const { cpuUsage } = require('process');
 const { pathToFileURL } = require('url');
 
-const client = new Discord.Client();
+const client = new Discord.Client({ intents: [Discord.Intents.ALL] });
 
-client.once('ready', () => {
-	console.log("Started")
-	client.user.setActivity("Ping me! I am curently on "+client.guilds.cache.length)
+client.once('ready', async () => {
+	console.log("Started",client.guilds.cache.size)
+	client.user.setActivity("Ping me! Serving "+client.guilds.cache.size+" servers")
+
+	const data = [
+		{
+			name: 'bazaar',
+			description: 'A way to interact with bazaar',
+			options: [
+				{
+					name: 'order',
+					description: 'Create, update, delete orders',
+					type:'SUB_COMMAND_GROUP',
+					options: [
+						{
+							name: 'create',
+							description: 'Create order',
+							type:'SUB_COMMAND',
+							options: [
+								{
+									name: 'type',
+									description: 'Order Type',
+									type: 'STRING',
+									required:true,
+									choices: [
+										{
+											name: 'Buy',
+											description: 'You are buying',
+											value: 'buy',
+										},
+										{
+											name: 'Sell',
+											description: 'You are selling',
+											value: 'sell',
+										},
+									]
+								},
+								{
+									name: 'price',
+									description: "Price of ONE item (you can use k,m,mil. Use '.' for decimal, ',' and ' ' are ignored",
+									type: 'STRING',
+									required: true,
+								},
+								{
+									name: 'price_type',
+									description: 'Price type',
+									type: 'STRING',
+									required: true,
+									choices: [
+										{
+											name: "Exotic Tech",
+											value: "exotic tech"
+										},
+										{
+											name: "Space Credits",
+											value: "space credits"
+										}
+									]
+								},
+								{
+									name: 'item',
+									description: 'Item you want to buy/sell',
+									type: 'STRING',
+									required: true,
+								},
+								{
+									name: 'amount',
+									description: 'Amount of item you want to buy/sell',
+									type: 'STRING',
+									required: true
+								}
+							]
+						},
+						{
+							name: 'update',
+							description: 'Update order',
+							type:'SUB_COMMAND',
+							options: [
+								{
+									name: 'orderid',
+									description: 'Id of an order you want to modify',
+									type: 'STRING',
+									required: true,
+								},
+								{
+									name: 'type',
+									description: 'Order Type',
+									type: 'STRING',
+									required:false,
+									choices: [
+										{
+											name: 'Buy',
+											description: 'You are buying',
+											value: 'buy',
+										},
+										{
+											name: 'Sell',
+											description: 'You are selling',
+											value: 'sell',
+										},
+									]
+								},
+								{
+									name: 'price',
+									description: "Price of ONE item (you can use k,m,mil. Use '.' for decimal, ',' and ' ' are ignored",
+									type: 'STRING',
+									required: false,
+								},
+								{
+									name: 'price_type',
+									description: 'Price type',
+									type: 'STRING',
+									required: false,
+									choices: [
+										{
+											name: "Exotic Tech",
+											value: "exotic tech"
+										},
+										{
+											name: "Space Credits",
+											value: "space credits"
+										}
+									]
+								},
+								{
+									name: 'item',
+									description: 'Item you want to buy/sell',
+									type: 'STRING',
+									required: false,
+								},
+								{
+									name: 'amount',
+									description: 'Amount of item you want to buy/sell',
+									type: 'STRING',
+									required: false,
+								}
+							]
+						},
+						{
+							name: 'delete',
+							description: 'Delete order',
+							type:'SUB_COMMAND',
+							options: [
+								{
+									name: 'orderid',
+									description: 'Id of an order you want to delete',
+									type: 'STRING',
+									required: true,
+								},
+							]
+						},
+						{
+							name: 'list',
+							description: 'Lists your orders',
+							type:'SUB_COMMAND'
+						},
+						{
+							name: 'info',
+							description: 'Get info about specific order',
+							type:'SUB_COMMAND',
+							options: [
+								{
+									name: 'orderid',
+									description: 'Id of an order you want to delete',
+									type: 'STRING',
+									required: true,
+								},
+							]
+						}
+					]
+				},
+				{
+					name: 'item',
+					description: 'List all tradable items',
+					type: 'SUB_COMMAND_GROUP',
+					options: [
+						{
+							name: 'list',
+							description: 'List all tradable items',
+							type: 'SUB_COMMAND'
+						}
+					]
+				},
+				{
+					name: 'search',
+					description: 'Search bazaar',
+					type: 'SUB_COMMAND',
+					options: [
+						{
+							name: 'type',
+							description: 'What order type do you want to search for?',
+							type:'STRING',
+							required:true,
+							choices:[
+								{
+									name: 'Buy',
+									description: 'Buy order',
+									value: 'buy',
+								},
+								{
+									name: 'Sell',
+									description: 'Sell order',
+									value: 'sell',
+								},
+								
+							]
+						},
+						{
+							name: 'item',
+							description: 'Item you want to buy/sell',
+							type: 'STRING',
+							required:true,
+						},
+						{
+							name: 'price_type',
+							description: 'Price type',
+							type: 'STRING',
+							required:true,
+							choices: [
+								{
+									name: "Exotic Tech",
+									value: "exotic tech"
+								},
+								{
+									name: "Space Credits",
+									value: "space credits"
+								}
+							]
+						},
+					]
+				}
+			]
+		}
+	]
+	const commands = await client.guilds.cache.get('711222589313253439')?.commands.set(data)
 });
 
 var sequelize = new Sequelize(
@@ -67,6 +299,13 @@ const Ore = sequelize.define('Ore', {
 	yield_elite_4xyield: Sequelize.FLOAT,
 	speed_elite_4xyield: Sequelize.FLOAT,
 });
+const Item = sequelize.define('Item', {
+	name: {
+		type: Sequelize.STRING,
+		allowNull:false,
+		unique:true
+	}
+})
 const UserOpt = sequelize.define('UserOpt',{
 	userid:{
 		type: Sequelize.BIGINT,
@@ -109,7 +348,7 @@ const ServerOpt = sequelize.define('ServerOpt',{
 	},
 	prefix: {
 		type: Sequelize.STRING,
-		defaultValue: 'tuf!'
+		defaultValue: 'ib!'
 	},
 })
 const ErrorReport = sequelize.define('ErrorReport',{
@@ -133,6 +372,47 @@ const CommandLog = sequelize.define('CommandLog', {
 		type: Sequelize.DATE,
 		defaultValue: Sequelize.NOW
 	}
+})
+const Order = sequelize.define('Order',{
+	orderid: {
+		type: Sequelize.UUID,
+		defaultValue: Sequelize.UUIDV4
+	},
+	userid:{
+		type: Sequelize.BIGINT
+	},
+	username:{
+		type: Sequelize.STRING
+	},
+	type: Sequelize.STRING,
+	component: {
+		type: Sequelize.STRING,
+		defaultValue: ''
+	},
+	count: {
+		type: Sequelize.BIGINT,
+		defaultValue: 0
+	},
+	reserved: {
+		type: Sequelize.BIGINT,
+		defaultValue: 0
+	},
+	price_type:{
+		type: Sequelize.STRING,
+		defaultValue: 'exotic tech'
+	},
+	price:{
+		type: Sequelize.INTEGER,
+		defaultValue: 0
+	},
+	date: {
+		type: Sequelize.DATE,
+		defaultValue: Sequelize.NOW
+	},
+	updatedOn: {
+		type: Sequelize.DATE,
+		defaultValue: Sequelize.NOW
+	},
 })
 async function getInt(str){
 	return parseInt(await getFloat(str))
@@ -288,9 +568,9 @@ async function updateReportChannel(){
 				let embed = new Discord.MessageEmbed()
 					.setTitle("Error report")
 					.setDescription(element.issue)
-					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+					.setAuthor('Interstellar Bazaar','https://i.imgur.com/YVonAqY.png','https://i.imgur.com/YVonAqY.png')
 					.setFooter(element.username+' ('+element.userid+') at '+element.date);
-				errch.send(embed)
+				errch.send({embeds:[embed]})
 			});
 			ErrorReport.update({sentToLog:true},{where:{sentToLog:false}})
 		}
@@ -307,9 +587,9 @@ async function updateCommandLog(){
 				let embed = new Discord.MessageEmbed()
 					.setTitle("Log")
 					.setDescription(element.message)
-					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+					.setAuthor('Interstellar Bazaar','https://i.imgur.com/YVonAqY.png','https://i.imgur.com/YVonAqY.png')
 					.setFooter(element.username+' ('+element.userid+') at '+element.date+'\n'+element.servername+' ('+element.serverid+')');
-				logch.send(embed)
+				logch.send({embeds:[embed]})
 			});
 			CommandLog.update({sentToLog:true},{where:{sentToLog:false}})
 		}else{
@@ -323,7 +603,7 @@ async function updateCommandLog(){
 sequelize.sync({alter: false, force: false});
 client.on('guildCreate', async guild =>{
 	console.log("new server")
-	client.user.setActivity("Ping me! I am curently on "+client.guilds.cache.length)
+	client.user.setActivity("Ping me! Serving "+client.guilds.cache.size+" servers")
 });
 client.on('message', async message => {
 	let serveroptions = await ServerOpt.findOne({where: {serverid: message.guild.id}})
@@ -332,7 +612,7 @@ client.on('message', async message => {
 			try{
 				const serveropt = await ServerOpt.create({
 					serverid: message.guild.id,
-					prefix: "tuf!",
+					prefix: "ib!",
 					bot_channel: null
 				});
 			}catch(e){
@@ -393,9 +673,9 @@ client.on('message', async message => {
 					let embed = new Discord.MessageEmbed()
 						.setTitle("I know of this component comparasons:")
 						.setDescription(compa.map(t => t.name1+' '+t.name2+' '+t.times).join('\n') || 'No components compared yet.')
-						.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+						.setAuthor('Interstellar Bazaar','https://i.imgur.com/YVonAqY.png','https://i.imgur.com/YVonAqY.png')
 						.setFooter("If you see this and you don't know why, report an error");
-					message.channel.send(embed)
+					message.channel.send({embeds:[embed]})
 				}
 			}
 		}
@@ -450,9 +730,9 @@ client.on('message', async message => {
 				let embed = new Discord.MessageEmbed()
 					.setTitle("I know of this components:")
 					.setDescription(desc)
-					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+					.setAuthor('Interstellar Bazaar','https://i.imgur.com/YVonAqY.png','https://i.imgur.com/YVonAqY.png')
 					.setFooter('Assemble time using elite assembler with 4 speed modules and time measured by timer on phone');
-				message.channel.send(embed);
+				message.channel.send({embeds:[embed]});
 			}else if(command === 'orelist'){
 				const ores = await Ore.findAll();
 				var desc="Name | Yield Elite 4xYield | Speed Elite 4xYield\n";
@@ -462,9 +742,9 @@ client.on('message', async message => {
 				let embed = new Discord.MessageEmbed()
 					.setTitle("I know of this ores:")
 					.setDescription(desc)
-					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+					.setAuthor('Interstellar Bazaar','https://i.imgur.com/YVonAqY.png','https://i.imgur.com/YVonAqY.png')
 					.setFooter('All data is from tests on the nexus PvE SPACE');
-				message.channel.send(embed);
+				message.channel.send({embeds:[embed]});
 			}else if(command === 'compinfo'){
 				const comp = await Component.findOne({where: {name:commandArgs[0]}});
 				if(comp==null)
@@ -480,7 +760,7 @@ client.on('message', async message => {
 					var refinerytime=0, assemblertime=0;
 					let embed = new Discord.MessageEmbed()
 						.setTitle(comp.name+" info ("+floatOutput(compamount,useroptions.outputtype)+")")
-						.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+						.setAuthor('Interstellar Bazaar','https://i.imgur.com/YVonAqY.png','https://i.imgur.com/YVonAqY.png')
 						.setFooter('Default time is measured using elite 4x yield refineries and elite 4x speed assemblers');
 					compores.forEach(element => {
 						var amount;
@@ -503,7 +783,7 @@ client.on('message', async message => {
 						embed.addField("Rare Tech",floatOutput(comp.tech4x*compamount,useroptions.outputtype),true);
 					if(comp.dataValues["tech8x"]!=0)
 						embed.addField("Exotic Tech",floatOutput(comp.tech8x*compamount,useroptions.outputtype),true);
-					message.channel.send(embed);
+					message.channel.send({embeds:[embed]});
 				}
 			}else if(command === 'compare'){
 				const comp1 = await Component.findOne({where: {name:commandArgs[0]}});
@@ -559,20 +839,20 @@ client.on('message', async message => {
 					addToCompared(name1,name2)
 					let embed = new Discord.MessageEmbed()
 							.setTitle("Comparison between "+name1+" and "+name2)
-							.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+							.setAuthor('Interstellar Bazaar','https://i.imgur.com/YVonAqY.png','https://i.imgur.com/YVonAqY.png')
 							.setFooter('Default time is measured using elite 4x yield refineries and elite 4x speed assemblers.');
 					if(astime1==0 || astime2==0){
 						message.reply("At least one of compared items is an ingot, so assembler time is not compared")
 						embed.addField("Refining time comparison:",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime1/retime2,useroptions.outputtype)+" of "+name2)
-						embed.addField("Resource weight comparison (user preferences can be changed using tuf!useropt)",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*weight1/weight2,useroptions.outputtype)+" of "+name2)
+						embed.addField("Resource weight comparison (user preferences can be changed using "+PREFIX+"!useropt)",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*weight1/weight2,useroptions.outputtype)+" of "+name2)
 					}else{
 						
 						embed.addField("Assembling time comparison:",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*astime1/astime2,useroptions.outputtype)+" of "+name2)
 						embed.addField("Refining time comparison:",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*retime1/retime2,useroptions.outputtype)+" of "+name2)
 						embed.addField("Max of both times time comparison:",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*Math.max(retime1,astime1)/Math.max(retime2,astime2),useroptions.outputtype)+" of "+name2)
-						embed.addField("Resource weight comparison (user preferences can be changed using tuf!useropt)",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*weight1/weight2,useroptions.outputtype)+" of "+name2)
+						embed.addField("Resource weight comparison (user preferences can be changed using "+PREFIX+"!useropt)",""+floatOutput(comparednumber,useroptions.outputtype)+" of "+name1+" is worth the same as "+floatOutput(comparednumber*weight1/weight2,useroptions.outputtype)+" of "+name2)
 					}
-					message.channel.send(embed)
+					message.channel.send({embeds:[embed]})
 				}
 			}else if(command === 'useropt'){
 				const avoptions = ["iron_weight","silicon_weight","nickel_weight","cobalt_weight","silver_weight","gold_weight","uranium_weight","platinum_weight","magnesium_weight","gravel_weight","outputtype"]
@@ -581,7 +861,7 @@ client.on('message', async message => {
 				{	
 					let embed = new Discord.MessageEmbed()
 						.setTitle(message.author.username+" options")
-						.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+						.setAuthor('Interstellar Bazaar','https://i.imgur.com/YVonAqY.png','https://i.imgur.com/YVonAqY.png')
 						.setFooter('To change option type '+PREFIX+'useropt `option_code` `new value`');
 					avoptions.forEach(element=>{
 						if(element=='outputtype')
@@ -592,7 +872,7 @@ client.on('message', async message => {
 							embed.addField(element+': '+useroptions.dataValues[element],'Weight of '+ingotname+' when used in comparison of two components.')
 						}
 					})
-					message.channel.send(embed)	
+					message.channel.send({embeds:[embed]})	
 				}else{
 					let newvalue;
 					if(commandArgs[0]=="outputtype")
@@ -643,9 +923,9 @@ client.on('message', async message => {
 					.addField('`'+PREFIX+'useropt (opt_name) (opt_value)`','Shows available personal options')
 					.addField('`'+PREFIX+'serveropt (opt_name) (opt_value)`','Shows available server options. You need to have admin permissions')
 					.addField('`'+PREFIX+'report <issue>`','Reports an issue')
-					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+					.setAuthor('Interstellar Bazaar','https://i.imgur.com/YVonAqY.png','https://i.imgur.com/YVonAqY.png')
 					.setFooter('Get available commands with `'+PREFIX+'help`');
-				message.channel.send(embed)
+					message.channel.send({ embeds: [embed] })
 			}else if(command === 'serveropt'){
 				const avoptions = ["bot_channel","prefix"]
 				let x;
@@ -653,7 +933,7 @@ client.on('message', async message => {
 				{	
 					let embed = new Discord.MessageEmbed()
 						.setTitle(message.guild.name+" options")
-						.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+						.setAuthor('Interstellar Bazaar','https://i.imgur.com/YVonAqY.png','https://i.imgur.com/YVonAqY.png')
 						.setFooter('To change option type '+PREFIX+'serveropt `option_code` `new value`');
 					avoptions.forEach(element=>{
 						if(element=='bot_channel')
@@ -662,10 +942,12 @@ client.on('message', async message => {
 							embed.addField('prefix: '+serveroptions.prefix,'Prefix bot will respond to')
 						}
 					})
-					message.channel.send(embed)
+					message.channel.send({embeds:[embed]})
 					message.channel.send("Disclaimer:`Every message starting with server prefix, or any message that pings this bot is recorded and saved in the database for debugging purposes. If you do not agree, do not use the bot. If you have any questions join WWI discord and ask any questions.`")
 				}else if(message.member.hasPermission("ADMINISTRATOR")){
 					let newvalue;
+					if(commandArgs[1]==undefined)
+						commandArgs[1]=""
 					if(commandArgs[0]=="bot_channel")
 					{
 						if(message.mentions.channels.first()!=null)
@@ -679,7 +961,7 @@ client.on('message', async message => {
 						if(commandArgs[1].length>0)
 							newvalue=commandArgs[1];
 						else
-							newvalue="tuf!"
+							newvalue="ib!"
 					}
 					let column=commandArgs[0]
 						if(column=="bot_channel") 		await ServerOpt.update({ bot_channel: newvalue}, 		{where: {serverid: message.guild.id}});
@@ -699,11 +981,11 @@ client.on('message', async message => {
 						oreamount=1
 					let embed = new Discord.MessageEmbed()
 						.setTitle(floatOutput(oreamount)+' of '+ore.name+' ore')
-						.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+						.setAuthor('Interstellar Bazaar','https://i.imgur.com/YVonAqY.png','https://i.imgur.com/YVonAqY.png')
 						.setFooter('To change option type '+PREFIX+'useropt `option_code` `new value`');
 					embed.addField('Time to refine '+' with 1 elite refinery with 4 yield modules',timeOutput(oreamount*ore.yield_elite_4xyield/ore.speed_elite_4xyield))
 					embed.addField('Ingots from refining '+' with 1 elite refinery with 4 yield modules',floatOutput(oreamount*ore.yield_elite_4xyield))
-					message.channel.send(embed)
+					message.channel.send({embeds:[embed]})
 				}
 			}
 		}
@@ -724,14 +1006,245 @@ client.on('message', async message => {
 				let embed = new Discord.MessageEmbed()
 					.setTitle("I see you")
 					.setDescription("Prefix for this server is `"+PREFIX+'`')
-					.setAuthor('TUF','https://i.imgur.com/aJfvqAB.png','https://discord.gg/56tChXdzzP')
+					.setAuthor('Interstellar Bazaar','https://i.imgur.com/YVonAqY.png','https://i.imgur.com/YVonAqY.png')
 					.setFooter('Get available commands with `'+PREFIX+'help`');
-				message.channel.send(embed);
+				message.channel.send({embeds:[embed]});
 
 			}
 		}
 	}
 	
 });
-
+client.on('interaction', async interaction => {
+	if (!interaction.isCommand()) return;
+	/*/
+	await CommandLog.create({
+		userid: interaction.user.id,
+		username: interaction.user.username,
+		message: interaction.options.first().name+' '+interaction.options.first().options.first().name+'\n'+interaction.options.first().options.first().options.map(r=>r.name+": "+r.value).join('\n'),
+		serverid: interaction.guild.id,
+		servername: interaction.guild.name,
+		sentToLog:false
+	});
+	await updateCommandLog()
+	//*/
+	if(interaction.commandName=='bazaar')
+	{
+		if(interaction.options.first().name=='order')
+		{
+			options=interaction.options.first().options.first().options
+			switch(interaction.options.first().options.first().name){
+				case 'create':
+					let comp = await Component.findOne({where: {name: options.get('item').value}})
+					if(comp==null)
+						comp = await Ore.findOne({where: {name: options.get('item').value}})
+					if(comp==null)
+						comp = await Item.findOne({where: {name: options.get('item').value}})
+					if(comp==null)
+					{
+						await interaction.reply({content: 'Item `'+options.get('item').value+'` does not exist, to check available items, use `/bazaar item list`',ephemeral: true})
+						break;
+					}
+					if(isNaN(await getInt(options.get('amount').value))){
+						await interaction.reply({content: 'Amount `'+options.get('amount').value+'` is not an number, you can use `mil`,`m`,`k` ***after*** a number. Use `.` for decimals, `,` and ` ` are ignored',ephemeral: true})
+						break;
+					}
+					console.log(getFloat(options.get('price').value))
+					if(isNaN(await getFloat(options.get('price').value))){
+						await interaction.reply({content: 'Price `'+options.get('price').value+'` is not an number, you can use `mil`,`m`,`k` ***after*** a number. Use `.` for decimals, `,` and ` ` are ignored',ephemeral: true})
+						break;
+					}
+					//*/
+					try{
+					let order = await Order.create({
+						userid: interaction.user.id,
+						type: options.get('type').value,
+						component: options.get('item').value,
+						count: await getInt(options.get('amount').value),
+						price_type: options.get('price_type').value,
+						price: await getFloat(options.get('price').value),
+						username: interaction.user.username
+					})
+					//*/
+					let embed = new Discord.MessageEmbed
+					embed.setTitle("Created "+order.type+" order")
+					embed.setAuthor(interaction.user.username,interaction.user.avatarURL())
+					embed.setDescription(floatOutput(order.count,false)+" of "+order.component+"\n"+floatOutput(order.price,false)+" "+ order.price_type+" for one"+"\n"+floatOutput(order.price*order.count,false)+" "+ order.price_type+" for all")
+					embed.setFooter("Orderid: "+order.orderid)
+					interaction.reply({embeds:[embed],ephemeral:true})
+					}catch(err){
+						console.log(err)
+						interaction.reply("There was an error!")
+					}
+					//*/ 
+					break;
+				case 'update':
+					try{
+						let order2 = await Order.findOne({where: {orderid: options.get('orderid').value,userid: interaction.user.id}})
+						let type,price,price_type,item,amount;
+						if(order2 == null)
+						{
+							interaction.reply({content: "This order does not exist, or you didn't make it!",ephemeral:true})
+							break;
+						}
+						if(options.get('type')===undefined) type=order2.type
+						else type=options.get('type').value
+						if(options.get('price')===undefined) price=order2.price
+						else price=await getFloat(options.get('price').value,false)
+						if(options.get('price_type')===undefined) price_type=order2.price_type
+						else price_type=options.get('price_type').value
+						if(options.get('item')===undefined) item = order2.component
+						else item = options.get('item').value
+						if(options.get('amount')===undefined) amount = order2.count
+						else amount = await getInt(options.get('amount').value,false)
+						let comp = await Component.findOne({where: {name: item}})
+						if(comp==null)
+							comp = await Ore.findOne({where: {name: item}})
+						if(comp==null)
+							comp = await Item.findOne({where: {name: item}})
+						if(comp==null)
+						{
+							await interaction.reply({content: 'Item `'+item+'` does not exist, to check available items, use `/bazaar item list`',ephemeral: true})
+							break;
+						}
+						if(isNaN(amount)){
+							await interaction.reply({content: 'Amount `'+amount+'` is not an number, you can use `mil`,`m`,`k` ***after*** a number. Use `.` for decimals, `,` and ` ` are ignored',ephemeral: true})
+							break;
+						}
+						if(isNaN(price)){
+							await interaction.reply({content: 'Price `'+price+'` is not an number, you can use `mil`,`m`,`k` ***after*** a number. Use `.` for decimals, `,` and ` ` are ignored',ephemeral: true})
+							break;
+						}
+						await Order.update({
+							type: type,
+							component: item,
+							count: amount,
+							price_type: price_type,
+							price: price,
+						},{where: {orderid: options.get('orderid').value,userid: interaction.user.id}})
+						let order = await Order.findOne({where: {orderid: options.get('orderid').value,userid: interaction.user.id}})
+						console.log(order)
+						let embed = new Discord.MessageEmbed
+						embed.setTitle("Updated "+order.type+" order")
+						embed.setAuthor(interaction.user.username,interaction.user.avatarURL())
+						embed.setDescription(floatOutput(order.count,false)+" of "+order.component+"\n"+floatOutput(order.price,false)+" "+ order.price_type+" for one"+"\n"+floatOutput(order.price*order.count,false)+" "+ order.price_type+" for all")
+						embed.setFooter("Orderid: "+order.orderid)
+						interaction.reply({embeds:[embed],ephemeral:true})
+					}catch(err){
+						console.log(err)
+						interaction.reply("There was an error!")
+					}
+					break;
+				case 'delete':
+					try{
+						let result = await Order.destroy({where:{orderid:options.get('orderid').value,userid:interaction.user.id}})
+						if(result==0)
+							interaction.reply({content: "This order does not exist, or you didn't make it!",ephemeral:true})
+						else
+							interaction.reply({content: "Order "+options.get('orderid').value+" deleted",ephemeral:true})
+					}catch(err){
+						console.log(err)
+						interaction.reply("There was an error!")
+					}
+					break;
+				case 'list':
+					try{
+						let orders = await Order.findAll({where:{userid:interaction.user.id}})
+						let embeds=[]
+						orders.forEach(order => {
+							let embed = new Discord.MessageEmbed
+							embed.setTitle(order.type+" order")
+							embed.setAuthor(interaction.user.username,interaction.user.avatarURL())
+							embed.setDescription(floatOutput(order.count,false)+" of "+order.component+"\n"+floatOutput(order.price,false)+" "+ order.price_type+" for one"+"\n"+floatOutput(order.price*order.count,false)+" "+ order.price_type+" for all")
+							embed.setFooter("Orderid: "+order.orderid)
+							embeds.push(embed)
+						})
+						interaction.reply({content: "Your orders:",embeds:embeds,ephemeral:true})
+					}catch(err){
+						console.log(err)
+						interaction.reply("There was an error!")
+					}
+					break;
+				case 'info':
+					try{
+						let order = await Order.findOne({where:{orderid:options.get('orderid').value}})
+						if(order==undefined){
+							interaction.reply({content: "This order does not exist",ephemeral:true})
+							break;
+						}
+							let embed = new Discord.MessageEmbed
+							embed.setTitle(order.type+" order")
+							embed.setAuthor("<@"+order.userid+"> ("+order.username+")",'https://i.imgur.com/YVonAqY.png')
+							embed.setDescription(floatOutput(order.count,false)+" of "+order.component+"\n"+floatOutput(order.price,false)+" "+ order.price_type+" for one"+"\n"+floatOutput(order.price*order.count,false)+" "+ order.price_type+" for all")
+							embed.setFooter("Orderid: "+order.orderid)
+						interaction.reply({embeds:[embed],ephemeral:true})
+					}catch(err){
+						console.log(err)
+						interaction.reply("There was an error!")
+					}
+					break;
+			}
+		}else if(interaction.options.first().name=='item')
+		{
+			if(interaction.options.first().options.first().name=='list'){
+				try{
+					let ores = await Ore.findAll();
+					let components = await Component.findAll();
+					let items = await Item.findAll();
+					let desc = ores.map(r=>r.name.toLowerCase()).join('\n')+components.map(r=>r.name.toLowerCase()).join('\n')+items.map(r=>r.name.toLowerCase()).join('\n')
+					desc=desc.split('\n')
+					desc.sort()
+					desc=desc.join('\n')
+					let embed = new Discord.MessageEmbed()
+							.setTitle("I know of this items:")
+							.setDescription(desc)
+							.setAuthor('Interstellar Bazaar','https://i.imgur.com/YVonAqY.png','https://i.imgur.com/YVonAqY.png')
+					interaction.reply({embeds:[embed],ephemeral:true})
+				}catch(err){
+					console.log(err)
+					interaction.reply("There was an error!")
+				}
+			}else{
+				interaction.reply({content:'WIP',ephemeral:true})
+			}
+		}else if(interaction.options.first().name=='search'){
+			try{
+				let item, type, price_type, pref;
+				item = interaction.options.first().options.get('item').value;
+				type = interaction.options.first().options.get('type').value;
+				price_type = interaction.options.first().options.get('price_type').value;
+				let comp = await Component.findOne({where: {name: interaction.options.first().options.get('item').value}})
+				if(comp==null)
+					comp = await Ore.findOne({where: {name: interaction.options.first().options.get('item').value}})
+				if(comp==null)
+					comp = await Item.findOne({where: {name: interaction.options.first().options.get('item').value}})
+				if(comp==null)
+				{
+					await interaction.reply({content: 'Item `'+interaction.options.first().options.get('item').value+'` does not exist, to check available items, use `/bazaar item list`',ephemeral: true})
+				}
+				else{
+					if(price_type="space credits")
+						pref='sc'
+					else
+						pref='exo'
+					let orders = await Order.findAll({where: {component: item, type: type, price_type: price_type},order: sequelize.col('price')})
+					orders = orders.map(r=>floatOutput(r.price,false)+" "+pref+" for 1 | "+floatOutput(r.price*r.count,false)+" "+pref+" for "+floatOutput(r.count,false)+" orderid:`"+r.orderid+"`").join('\n')
+					let embed = new Discord.MessageEmbed()
+							.setTitle("Orders matching your request:")
+							.setDescription(orders)
+							.setFooter("`"+type+"` order of `"+item+"` for `"+price_type+"`")
+							.setAuthor('Interstellar Bazaar','https://i.imgur.com/YVonAqY.png','https://i.imgur.com/YVonAqY.png')
+					interaction.reply({embeds:[embed],ephemeral:true})
+				}
+			}catch(err){
+				console.log(err)
+				interaction.reply("There was an error!")
+			}
+		}else{
+			interaction.reply({content:'WIP',ephemeral:true})
+		}
+	}else{
+		interaction.reply({content:'WIP',ephemeral:true})
+	}
+});
 client.login(credentials.bot_token);
