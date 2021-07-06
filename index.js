@@ -1018,10 +1018,17 @@ client.on('message', async message => {
 client.on('interaction', async interaction => {
 	if (!interaction.isCommand()) return;
 	//*/
+	let log = interaction.commandName+'\n'
+	if(interaction.options!==undefined)
+		log += interaction.options.map(r=>r.name+": '"+r.value+"'").join(' ')+'\n'
+	if(interaction.options.first().options!==undefined)
+		log += interaction.options.first().options.map(r=>r.name+": '"+r.value+"'").join(' ')+'\n'
+	if(interaction.options.first().options.first().options!==undefined)
+		log += interaction.options.first().options.first().options.map(r=>r.name+": '"+r.value+"'").join(' ')+'\n'
 	await CommandLog.create({
 		userid: interaction.user.id,
 		username: interaction.user.username,
-		message: interaction.options.first().name+' '+interaction.options.first().options.first().name+'\n'+interaction.options.first().options.first().options.map(r=>r.name+": "+r.value).join('\n'),
+		message: log,
 		serverid: interaction.guild.id,
 		servername: interaction.guild.name,
 		sentToLog:false
