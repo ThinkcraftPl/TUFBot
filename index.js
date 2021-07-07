@@ -402,7 +402,7 @@ const Order = sequelize.define('Order',{
 		defaultValue: 'exotic tech'
 	},
 	price:{
-		type: Sequelize.INTEGER,
+		type: Sequelize.FLOAT,
 		defaultValue: 0
 	},
 	date: {
