@@ -767,7 +767,7 @@ client.on('message', async message => {
 						amount=parseFloat(comp.dataValues[element.toLowerCase()]);
 						amount=amount*compamount
 						if(amount!=0)
-							embed.addField(element, floatOutput(amount,useroptions.outputtype), true);
+							embed.addField(element, ""+floatOutput(amount,useroptions.outputtype), true);
 					});
 					refinerytime=await refineryTime(comp)
 					assemblertime=await assemblerTime(comp)
@@ -778,11 +778,11 @@ client.on('message', async message => {
 					
 					embed.setDescription("Refinery time: "+timeOutput(refinerytime,useroptions.outputtype)+"\nAssembler time: "+timeOutput(assemblertime,useroptions.outputtype));
 					if(comp.dataValues["tech2x"]!=0)
-						embed.addField("Common Tech",floatOutput(comp.tech2x*compamount,useroptions.outputtype),true);
+						embed.addField("Common Tech",""+floatOutput(comp.tech2x*compamount,useroptions.outputtype),true);
 					if(comp.dataValues["tech4x"]!=0)
-						embed.addField("Rare Tech",floatOutput(comp.tech4x*compamount,useroptions.outputtype),true);
+						embed.addField("Rare Tech",""+floatOutput(comp.tech4x*compamount,useroptions.outputtype),true);
 					if(comp.dataValues["tech8x"]!=0)
-						embed.addField("Exotic Tech",floatOutput(comp.tech8x*compamount,useroptions.outputtype),true);
+						embed.addField("Exotic Tech",""+floatOutput(comp.tech8x*compamount,useroptions.outputtype),true);
 					message.channel.send({embeds:[embed]});
 				}
 			}else if(command === 'compare'){
