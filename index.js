@@ -944,7 +944,7 @@ client.on('message', async message => {
 					})
 					message.channel.send({embeds:[embed]})
 					message.channel.send("Disclaimer:`Every message starting with server prefix, or any message that pings this bot is recorded and saved in the database for debugging purposes. If you do not agree, do not use the bot. If you have any questions join WWI discord and ask any questions.`")
-				}else if(message.member.hasPermission("ADMINISTRATOR")){
+				}else if(message.member.permissions.has("ADMINISTRATOR")){
 					let newvalue;
 					if(commandArgs[1]==undefined)
 						commandArgs[1]=""
