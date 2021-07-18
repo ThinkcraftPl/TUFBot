@@ -322,7 +322,8 @@ const UserOpt = sequelize.define('UserOpt',{
 	platinum_weight:{type: Sequelize.FLOAT,default: 1,allowNull: false},
 	magnesium_weight:{type: Sequelize.FLOAT,default: 1,allowNull: false},
 	gravel_weight:{type: Sequelize.FLOAT,default: 1,allowNull: false},
-	outputtype:{type: Sequelize.BOOLEAN,default: 0,allowNull: false}
+	outputtype:{type: Sequelize.BOOLEAN,default: 0,allowNull: false},
+	refinery_count:{type: Sequelize.INTEGER, defaultValue: 1, allowNull: false}
 });
 const Compared = sequelize.define('Compared',{
 	name1: {
@@ -714,6 +715,7 @@ client.on('message', async message => {
 						magnesium_weight: 1,
 						gravel_weight: 1,
 						outputtype: 0,
+						refinery_count: 1,
 					});
 				}catch(e){
 					console.log(e)
@@ -776,7 +778,7 @@ client.on('message', async message => {
 					assemblertime=Math.round(assemblertime*100)/100
 					refinerytime=Math.round(refinerytime*100)/100
 					
-					embed.setDescription("Refinery time: "+timeOutput(refinerytime,useroptions.outputtype)+"\nAssembler time: "+timeOutput(assemblertime,useroptions.outputtype));
+					embed.setDescription("Refinery time (using "+useroptions.refinery_count+" refinerires): "+timeOutput(refinerytime/useroptions.refinery_count,useroptions.outputtype)+"\nAssembler time: "+timeOutput(assemblertime,useroptions.outputtype));
 					if(comp.dataValues["tech2x"]!=0)
 						embed.addField("Common Tech",""+floatOutput(comp.tech2x*compamount,useroptions.outputtype),true);
 					if(comp.dataValues["tech4x"]!=0)
@@ -855,7 +857,7 @@ client.on('message', async message => {
 					message.channel.send({embeds:[embed]})
 				}
 			}else if(command === 'useropt'){
-				const avoptions = ["iron_weight","silicon_weight","nickel_weight","cobalt_weight","silver_weight","gold_weight","uranium_weight","platinum_weight","magnesium_weight","gravel_weight","outputtype"]
+				const avoptions = ["iron_weight","silicon_weight","nickel_weight","cobalt_weight","silver_weight","gold_weight","uranium_weight","platinum_weight","magnesium_weight","gravel_weight","outputtype","refinery_count"]
 				let x;
 				if(avoptions.find(r=>r==commandArgs[0])==x)
 				{	
@@ -870,6 +872,8 @@ client.on('message', async message => {
 							let ingotname=element.substring(0, element.length - 7);
 							ingotname=ingotname.substring(0,1).toUpperCase()+ingotname.substring(1, ingotname.length)
 							embed.addField(element+': '+useroptions.dataValues[element],'Weight of '+ingotname+' when used in comparison of two components.')
+						}else if(element=='refinery_count'){
+							embed.addField('refinery_count: '+useroptions.dataValues['refinery_count'],'How many refineries to use in `'+PREFIX+'oreinfo` and `'+PREFIX+'`compinfo')
 						}
 					})
 					message.channel.send({embeds:[embed]})	
@@ -890,16 +894,17 @@ client.on('message', async message => {
 					}
 					let column=commandArgs[0]
 						if(column=="iron_weight") 		await UserOpt.update({ iron_weight: newvalue }, 		{where: {userid: message.author.id}});
-					else if(column=="silicon_weight") 	await UserOpt.update({ silicon_weight: newvalue }, 	{where: {userid: message.author.id}});
+					else if(column=="silicon_weight") 	await UserOpt.update({ silicon_weight: newvalue }, 		{where: {userid: message.author.id}});
 					else if(column=="nickel_weight") 	await UserOpt.update({ nickel_weight: newvalue }, 		{where: {userid: message.author.id}});
 					else if(column=="cobalt_weight") 	await UserOpt.update({ cobalt_weight: newvalue }, 		{where: {userid: message.author.id}});
 					else if(column=="silver_weight") 	await UserOpt.update({ silver_weight: newvalue }, 		{where: {userid: message.author.id}});
 					else if(column=="gold_weight") 		await UserOpt.update({ gold_weight: newvalue }, 		{where: {userid: message.author.id}});
-					else if(column=="uranium_weight") 	await UserOpt.update({ uranium_weight: newvalue }, 	{where: {userid: message.author.id}});
+					else if(column=="uranium_weight") 	await UserOpt.update({ uranium_weight: newvalue }, 		{where: {userid: message.author.id}});
 					else if(column=="platinum_weight") 	await UserOpt.update({ platinum_weight: newvalue }, 	{where: {userid: message.author.id}});
 					else if(column=="magnesium_weight") await UserOpt.update({ magnesium_weight: newvalue }, 	{where: {userid: message.author.id}});
 					else if(column=="gravel_weight") 	await UserOpt.update({ gravel_weight: newvalue }, 		{where: {userid: message.author.id}});
-					else if(column=="outputtype") 		await UserOpt.update({ outputtype: newvalue }, 		{where: {userid: message.author.id}});
+					else if(column=="outputtype") 		await UserOpt.update({ outputtype: newvalue }, 			{where: {userid: message.author.id}});
+					else if(column=="refinery_count")	await UserOpt.update({ refinery_count: newvalue},		{where: {userid: message.author.id}});
 					message.reply("Option "+column+" changed to "+newvalue+".")
 				}
 			}else if(command === 'report'){
@@ -983,8 +988,8 @@ client.on('message', async message => {
 						.setTitle(floatOutput(oreamount)+' of '+ore.name+' ore')
 						.setAuthor('Interstellar Bazaar','https://i.imgur.com/YVonAqY.png','https://i.imgur.com/YVonAqY.png')
 						.setFooter('To change option type '+PREFIX+'useropt `option_code` `new value`');
-					embed.addField('Time to refine '+' with 1 elite refinery with 4 yield modules',timeOutput(oreamount*ore.yield_elite_4xyield/ore.speed_elite_4xyield))
-					embed.addField('Ingots from refining '+' with 1 elite refinery with 4 yield modules',floatOutput(oreamount*ore.yield_elite_4xyield))
+					embed.addField('Time to refine '+' with '+useroptions.refinery_count+' elite refinery with 4 yield modules',timeOutput((oreamount*ore.yield_elite_4xyield/ore.speed_elite_4xyield)/useroptions.refinery_count,useroptions.outputtype))
+					embed.addField('Ingots from refining '+' with 1 elite refinery with 4 yield modules',floatOutput(oreamount*ore.yield_elite_4xyield,useroptions.outputtype))
 					message.channel.send({embeds:[embed]})
 				}
 			}
