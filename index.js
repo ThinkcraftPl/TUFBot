@@ -452,14 +452,14 @@ async function getFloat(str){
 function floatOutput(input,type){
 	let output=""
 	if(type){
-		return Math.round(input/0.01)/100
+		return ""+Math.round(input/0.01)/100
 	}
 	if (input>=1000000)
 		output=Math.round(input/10000)/100+"mil"
 	else if(input>=1000)
 		output=Math.round(input/10)/100+"k"
 	else
-		output=Math.round(input/0.01)/100
+		output=""+Math.round(input/0.01)/100
 	return output;
 }
 function timeOutput(input,type){
@@ -989,6 +989,7 @@ client.on('message', async message => {
 						.setAuthor('Interstellar Bazaar','https://i.imgur.com/YVonAqY.png','https://i.imgur.com/YVonAqY.png')
 						.setFooter('To change option type '+PREFIX+'useropt `option_code` `new value`');
 					embed.addField('Time to refine '+' with '+useroptions.refinery_count+' elite refinery with 4 yield modules',timeOutput((oreamount*ore.yield_elite_4xyield/ore.speed_elite_4xyield)/useroptions.refinery_count,useroptions.outputtype))
+					console.log(floatOutput(oreamount*ore.yield_elite_4xyield,useroptions.outputtype),(oreamount*ore.yield_elite_4xyield))
 					embed.addField('Ingots from refining '+' with 1 elite refinery with 4 yield modules',floatOutput(oreamount*ore.yield_elite_4xyield,useroptions.outputtype))
 					message.channel.send({embeds:[embed]})
 				}
